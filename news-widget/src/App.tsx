@@ -1,35 +1,72 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useCallback } from 'react';
+import { Feed, FullscreenViewer } from './components';
+import { useFeed } from './hooks';
+import type { Post } from './types';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { posts, loading, error, refetch, toggleLike } = useFeed();
+  const [fullscreenPost, setFullscreenPost] = useState<Post | null>(null);
+
+  const handleOpenFullscreen = useCallback((post: Post) => {
+    setFullscreenPost(post);
+  }, []);
+
+  const handleCloseFullscreen = useCallback(() => {
+    setFullscreenPost(null);
+  }, []);
+
+  const fullscreenIndex = fullscreenPost
+    ? posts.findIndex((p) => p.id === fullscreenPost.id)
+    : -1;
+
+  if (loading) {
+    return (
+      <div className="app-loading">
+        <div className="spinner"></div>
+        <p>Loading feed...</p>
+      </div>
+    );
+  }
+
+  if (error && posts.length === 0) {
+    return (
+      <div className="app-error">
+        <p>Failed to load feed: {error}</p>
+        <button onClick={refetch} className="retry-button">
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="app">
+      <header className="app-header">
+        <h1>📰 News Feed</h1>
+        <button onClick={refetch} className="refresh-button" aria-label="Refresh feed">
+          🔄
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      </header>
+
+      <main className="app-main">
+        <Feed
+          posts={posts}
+          onToggleLike={toggleLike}
+          onOpenFullscreen={handleOpenFullscreen}
+        />
+      </main>
+
+      {fullscreenPost && fullscreenIndex >= 0 && (
+        <FullscreenViewer
+          posts={posts}
+          initialIndex={fullscreenIndex}
+          onClose={handleCloseFullscreen}
+          onToggleLike={toggleLike}
+        />
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;

@@ -1,0 +1,49 @@
+.feed-container {
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #fafafa;
+  scroll-behavior: smooth;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 100px;
+}
+
+.feed-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.feed-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.feed-list::-webkit-scrollbar-thumb {
+  background: #dbdbdb;
+  border-radius: 3px;
+}
+
+.feed-row {
+  padding: 8px 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 600px) {
+  .feed-row {
+    padding: 12px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
+.feed-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #8e8e8e;
+  font-size: 16px;
+}
