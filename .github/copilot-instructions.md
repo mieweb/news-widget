@@ -1,3 +1,60 @@
+## Project: News Widget (Instagram-style Video Feed)
+
+This is a React + TypeScript + Vite project that implements an embeddable Instagram-style news video feed component.
+
+### Tech Stack
+- **React 19** + **TypeScript** + **Vite 7**
+- **react-player** (v3) for MP4/YouTube video playback
+- **react-swipeable** for gesture handling
+- **IntersectionObserver** for visibility-based autoplay
+
+### Project Structure
+```
+news-widget/
+├── src/
+│   ├── components/     # React components (Feed, FeedCard, FullscreenViewer, CommentsPanel)
+│   ├── hooks/          # Custom hooks (useFeed, useComments, useVisibility)
+│   ├── types/          # TypeScript interfaces (Post, Comment, MediaType)
+│   ├── App.tsx         # Main app entry
+│   └── main.tsx        # React DOM render
+├── public/             # Static assets
+└── package.json
+```
+
+### Key Patterns
+
+#### Components
+- Each component has its own `.tsx` and `.css` file
+- Components export from `components/index.ts` barrel file
+- Use semantic class names prefixed with component name (e.g., `.feed-card`, `.fullscreen-viewer`)
+
+#### Hooks
+- `useFeed` - Fetches and parses RSS feed data
+- `useComments` - Manages comment state per post
+- `useVisibility` - IntersectionObserver wrapper for autoplay
+
+#### Media Handling
+- Use `react-player` with `src` prop (not `url` - v3 API change)
+- Support YouTube URLs, MP4 URLs, and static images
+- Videos autoplay muted, tap to unmute
+- Only one video plays at a time (pause others when new one starts)
+
+### RSS Feed Integration
+- Data source: `https://community.enterprise.health/c/testing/11.rss`
+- Parse with DOMParser, extract media from `<enclosure>` or `<media:content>`
+- Extract YouTube URLs from post content with regex
+
+### Commands
+```bash
+cd news-widget
+npm install      # Install dependencies
+npm run dev      # Start dev server
+npm run build    # Production build
+npm run lint     # Run ESLint
+```
+
+---
+
 ## Code Quality Principles
 
 <!-- https://github.com/mieweb/template-mieweb-opensource/blob/main/.github/copilot-instructions.md -->
