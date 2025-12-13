@@ -44,6 +44,13 @@ news-widget/
 - Parse with DOMParser, extract media from `<enclosure>` or `<media:content>`
 - Extract YouTube URLs from post content with regex
 
+### Sample Feed (src/data/sampleFeed.ts)
+- Used for local testing and automated tests
+- **YouTube URLs only** for external video content (test reliability)
+- **No external image services** (picsum.photos, placeholder.com, etc.)
+- Use `mediaType: 'none'` for text-only posts instead of external images
+- This ensures automated tests don't fail due to flaky network requests
+
 ### Commands
 ```bash
 cd news-widget
