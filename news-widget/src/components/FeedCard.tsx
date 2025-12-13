@@ -119,10 +119,10 @@ export const FeedCard: React.FC<FeedCardProps> = ({
 
       case 'none':
         return (
-          <div className="media-container media-placeholder" onClick={handleDoubleTap}>
-            <div className="placeholder-content">
-              <span className="placeholder-icon">📰</span>
-              <span className="placeholder-text">No media</span>
+          <div className="media-container media-caption" onClick={handleDoubleTap}>
+            <div className="caption-content">
+              <strong>{post.author.name}</strong>
+              <p>{post.caption}</p>
             </div>
           </div>
         );
@@ -210,10 +210,12 @@ export const FeedCard: React.FC<FeedCardProps> = ({
         )}
       </div>
 
-      {/* Caption */}
-      <div className="card-caption">
-        <strong>{post.author.name}</strong> {post.caption}
-      </div>
+      {/* Caption - only show if not already displayed in media area */}
+      {post.mediaType !== 'none' && (
+        <div className="card-caption">
+          <strong>{post.author.name}</strong> {post.caption}
+        </div>
+      )}
 
       {/* Comments Panel */}
       {showComments && (
