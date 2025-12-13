@@ -1,12 +1,35 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Post, MediaType } from '../types';
+import { SAMPLE_FEED_URL, getSamplePosts } from '../data/sampleFeed';
 
-const RSS_URL = 'https://community.enterprise.health/c/testing/11.rss';
+// URLs matching this pattern are proxied through Vite dev server
+// In production, these should have Access-Control-Allow-Origin set
+const PROXIED_HOST = 'community.enterprise.health';
 
-// CORS proxy for development - in production you'd use your own backend
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+/**
+ * Check if a URL will be proxied in development
+ */
+export function isProxiedUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.host === PROXIED_HOST;
+  } catch {
+    return false;
+  }
+}
 
-function extractMediaFromContent(content: string): { type: MediaType; url: string; thumbnail?: string } {
+/**
+ * Convert a feed URL to use the dev proxy if needed
+ */
+function getProxiedUrl(url: string): string {
+  if (import.meta.env.DEV && isProxiedUrl(url)) {
+    const parsed = new URL(url);
+    return `/api/rss${parsed.pathname}${parsed.search}`;
+  }
+  return url;
+}
+
+function extractMediaFromContent(content: string): { type: MediaType; url?: string; thumbnail?: string } {
   // Check for YouTube embeds or links
   const youtubeMatch = content.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
@@ -41,11 +64,8 @@ function extractMediaFromContent(content: string): { type: MediaType; url: strin
     return { type: 'image', url };
   }
 
-  // Default placeholder
-  return {
-    type: 'image',
-    url: 'https://via.placeholder.com/400x300?text=No+Media',
-  };
+  // No media found
+  return { type: 'none', url: undefined };
 }
 
 function stripHtml(html: string): string {
@@ -76,7 +96,6 @@ function parseRSS(xmlString: string): Post[] {
       id: guid,
       author: {
         name: creator,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(creator)}&background=random`,
       },
       caption: caption || title,
       mediaType: media.type,
@@ -92,7 +111,7 @@ function parseRSS(xmlString: string): Post[] {
   return posts;
 }
 
-export function useFeed() {
+export function useFeed(feedUrl: string) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,8 +120,16 @@ export function useFeed() {
     setLoading(true);
     setError(null);
 
+    // Handle sample feed for local testing
+    if (feedUrl === SAMPLE_FEED_URL) {
+      setPosts(getSamplePosts());
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch(`${CORS_PROXY}${encodeURIComponent(RSS_URL)}`);
+      const fetchUrl = getProxiedUrl(feedUrl);
+      const response = await fetch(fetchUrl);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -112,12 +139,10 @@ export function useFeed() {
     } catch (err) {
       console.error('Failed to fetch feed:', err);
       setError(err instanceof Error ? err.message : 'Failed to load feed');
-      // Set fallback demo posts on error
-      setPosts(getDemoPosts());
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [feedUrl]);
 
   useEffect(() => {
     fetchFeed();
@@ -138,54 +163,4 @@ export function useFeed() {
   }, []);
 
   return { posts, loading, error, refetch: fetchFeed, toggleLike };
-}
-
-function getDemoPosts(): Post[] {
-  return [
-    {
-      id: 'demo-1',
-      author: { name: 'Demo User', avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=random' },
-      caption: 'Check out this amazing video about React development!',
-      mediaType: 'youtube',
-      mediaUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
-      timestamp: new Date(),
-      likes: 42,
-      commentCount: 5,
-      isLiked: false,
-    },
-    {
-      id: 'demo-2',
-      author: { name: 'Tech News', avatar: 'https://ui-avatars.com/api/?name=Tech+News&background=random' },
-      caption: 'Beautiful sunset captured on camera',
-      mediaType: 'image',
-      mediaUrl: 'https://picsum.photos/800/600?random=1',
-      timestamp: new Date(Date.now() - 3600000),
-      likes: 128,
-      commentCount: 12,
-      isLiked: true,
-    },
-    {
-      id: 'demo-3',
-      author: { name: 'Video Creator', avatar: 'https://ui-avatars.com/api/?name=Video+Creator&background=random' },
-      caption: 'Sample MP4 video demonstration',
-      mediaType: 'video',
-      mediaUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      timestamp: new Date(Date.now() - 7200000),
-      likes: 89,
-      commentCount: 8,
-      isLiked: false,
-    },
-    {
-      id: 'demo-4',
-      author: { name: 'Nature Photos', avatar: 'https://ui-avatars.com/api/?name=Nature+Photos&background=random' },
-      caption: 'Mountain landscape photography',
-      mediaType: 'image',
-      mediaUrl: 'https://picsum.photos/800/600?random=2',
-      timestamp: new Date(Date.now() - 10800000),
-      likes: 256,
-      commentCount: 24,
-      isLiked: false,
-    },
-  ];
 }

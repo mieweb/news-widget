@@ -1,11 +1,16 @@
 import { useState, useCallback } from 'react';
-import { Feed, FullscreenViewer } from './components';
+import { Feed, FullscreenViewer, LandingPage } from './components';
 import { useFeed } from './hooks';
 import type { Post } from './types';
 import './App.css';
 
-function App() {
-  const { posts, loading, error, refetch, toggleLike } = useFeed();
+interface SelectedFeed {
+  url: string;
+  name: string;
+}
+
+function FeedView({ feed, onBack }: { feed: SelectedFeed; onBack: () => void }) {
+  const { posts, loading, error, refetch, toggleLike } = useFeed(feed.url);
   const [fullscreenPost, setFullscreenPost] = useState<Post | null>(null);
 
   const handleOpenFullscreen = useCallback((post: Post) => {
@@ -43,7 +48,10 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>📰 News Feed</h1>
+        <button onClick={onBack} className="back-button" aria-label="Back to channels">
+          ←
+        </button>
+        <h1>📰 {feed.name}</h1>
         <button onClick={refetch} className="refresh-button" aria-label="Refresh feed">
           🔄
         </button>
@@ -67,6 +75,24 @@ function App() {
       )}
     </div>
   );
+}
+
+function App() {
+  const [selectedFeed, setSelectedFeed] = useState<SelectedFeed | null>(null);
+
+  const handleSelectFeed = useCallback((url: string, name: string) => {
+    setSelectedFeed({ url, name });
+  }, []);
+
+  const handleBack = useCallback(() => {
+    setSelectedFeed(null);
+  }, []);
+
+  if (!selectedFeed) {
+    return <LandingPage onSelectFeed={handleSelectFeed} />;
+  }
+
+  return <FeedView feed={selectedFeed} onBack={handleBack} />;
 }
 
 export default App;

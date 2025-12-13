@@ -1,4 +1,4 @@
-export type MediaType = 'image' | 'video' | 'youtube';
+export type MediaType = 'image' | 'video' | 'youtube' | 'none';
 
 export interface Post {
   id: string;
@@ -8,7 +8,7 @@ export interface Post {
   };
   caption: string;
   mediaType: MediaType;
-  mediaUrl: string;
+  mediaUrl?: string;
   thumbnailUrl?: string;
   timestamp: Date;
   likes: number;

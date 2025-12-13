@@ -3,6 +3,7 @@ import ReactPlayer from 'react-player';
 import type { Post } from '../types';
 import { useVisibility } from '../hooks/useVisibility';
 import { CommentsPanel } from './CommentsPanel';
+import { Avatar } from './Avatar';
 import './FeedCard.css';
 
 interface FeedCardProps {
@@ -116,6 +117,16 @@ export const FeedCard: React.FC<FeedCardProps> = ({
           </div>
         );
 
+      case 'none':
+        return (
+          <div className="media-container media-placeholder" onClick={handleDoubleTap}>
+            <div className="placeholder-content">
+              <span className="placeholder-icon">📰</span>
+              <span className="placeholder-text">No media</span>
+            </div>
+          </div>
+        );
+
       case 'image':
       default:
         return (
@@ -125,8 +136,13 @@ export const FeedCard: React.FC<FeedCardProps> = ({
               alt={post.caption}
               loading="lazy"
               onError={(e) => {
-                (e.target as HTMLImageElement).src =
-                  'https://via.placeholder.com/400x300?text=Image+Not+Found';
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                target.parentElement?.classList.add('media-placeholder');
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder-content';
+                placeholder.innerHTML = '<span class="placeholder-icon">🖼️</span><span class="placeholder-text">Image not found</span>';
+                target.parentElement?.appendChild(placeholder);
               }}
             />
           </div>
@@ -138,9 +154,10 @@ export const FeedCard: React.FC<FeedCardProps> = ({
     <div ref={cardRef} className="feed-card">
       {/* Header */}
       <div className="card-header">
-        <img
-          src={post.author.avatar || 'https://ui-avatars.com/api/?name=User'}
-          alt={post.author.name}
+        <Avatar
+          name={post.author.name}
+          src={post.author.avatar}
+          size="medium"
           className="author-avatar"
         />
         <div className="author-info">

@@ -50,6 +50,21 @@ body {
   background: #efefef;
 }
 
+.back-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  margin-right: 8px;
+}
+
+.back-button:hover {
+  background: #efefef;
+}
+
 .app-main {
   flex: 1;
   overflow: hidden;

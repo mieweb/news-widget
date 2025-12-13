@@ -33,7 +33,6 @@ export function useComments(postId: string) {
         postId,
         author: {
           name: 'You',
-          avatar: 'https://ui-avatars.com/api/?name=You&background=6366f1&color=fff',
         },
         content,
         timestamp: new Date(),
@@ -72,7 +71,6 @@ function generateMockComments(postId: string): Comment[] {
       postId,
       author: {
         name,
-        avatar: `https://ui-avatars.com/api/?name=${name}&background=random`,
       },
       content: sampleComments[Math.floor(Math.random() * sampleComments.length)],
       timestamp: new Date(Date.now() - Math.random() * 86400000),

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useComments } from '../hooks/useComments';
+import { Avatar } from './Avatar';
 import './CommentsPanel.css';
 
 interface CommentsPanelProps {
@@ -57,9 +58,10 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({ postId, onClose })
         ) : (
           comments.map((comment) => (
             <div key={comment.id} className="comment-item">
-              <img
-                src={comment.author.avatar || 'https://ui-avatars.com/api/?name=User'}
-                alt={comment.author.name}
+              <Avatar
+                name={comment.author.name}
+                src={comment.author.avatar}
+                size="small"
                 className="comment-avatar"
               />
               <div className="comment-content">

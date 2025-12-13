@@ -69,6 +69,28 @@
   object-fit: cover;
 }
 
+.media-placeholder {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+  gap: 0.5rem;
+}
+
+.placeholder-icon {
+  font-size: 3rem;
+}
+
+.placeholder-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 .mute-button {
   position: absolute;
   bottom: 12px;
