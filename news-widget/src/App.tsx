@@ -1,21 +1,26 @@
 import { useState, useCallback } from 'react';
 import { Feed, FullscreenViewer, LandingPage } from './components';
-import { useFeed } from './hooks';
+import { useFeed, useRouter } from './hooks';
+import { getFeedById, type FeedConfig } from './data/feedRegistry';
 import type { Post } from './types';
 import './App.css';
 
-interface SelectedFeed {
-  url: string;
-  name: string;
+interface FeedViewProps {
+  feed: FeedConfig;
+  postId: string | null;
+  onBack: () => void;
+  onNavigateToPost: (postId: string) => void;
+  onClearPostId: () => void;
 }
 
-function FeedView({ feed, onBack }: { feed: SelectedFeed; onBack: () => void }) {
+function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: FeedViewProps) {
   const { posts, loading, error, refetch, toggleLike } = useFeed(feed.url);
   const [fullscreenPost, setFullscreenPost] = useState<Post | null>(null);
 
   const handleOpenFullscreen = useCallback((post: Post) => {
     setFullscreenPost(post);
-  }, []);
+    onNavigateToPost(post.id);
+  }, [onNavigateToPost]);
 
   const handleCloseFullscreen = useCallback(() => {
     setFullscreenPost(null);
@@ -24,6 +29,13 @@ function FeedView({ feed, onBack }: { feed: SelectedFeed; onBack: () => void }) 
   const fullscreenIndex = fullscreenPost
     ? posts.findIndex((p) => p.id === fullscreenPost.id)
     : -1;
+
+  // If we have a postId from the URL and posts are loaded, open fullscreen for that post
+  const targetPost = postId ? posts.find((p) => p.id === postId) : null;
+  if (targetPost && !fullscreenPost && !loading) {
+    // Open fullscreen for deep-linked post
+    setFullscreenPost(targetPost);
+  }
 
   if (loading) {
     return (
@@ -62,6 +74,8 @@ function FeedView({ feed, onBack }: { feed: SelectedFeed; onBack: () => void }) 
           posts={posts}
           onToggleLike={toggleLike}
           onOpenFullscreen={handleOpenFullscreen}
+          scrollToPostId={postId}
+          onScrolledToPost={onClearPostId}
         />
       </main>
 
@@ -78,21 +92,38 @@ function FeedView({ feed, onBack }: { feed: SelectedFeed; onBack: () => void }) 
 }
 
 function App() {
-  const [selectedFeed, setSelectedFeed] = useState<SelectedFeed | null>(null);
+  const { route, navigateToFeed, navigateToPost, navigateToLanding, clearPostId } = useRouter();
 
-  const handleSelectFeed = useCallback((url: string, name: string) => {
-    setSelectedFeed({ url, name });
-  }, []);
+  const handleSelectFeed = useCallback((feedId: string) => {
+    navigateToFeed(feedId);
+  }, [navigateToFeed]);
 
   const handleBack = useCallback(() => {
-    setSelectedFeed(null);
-  }, []);
+    navigateToLanding();
+  }, [navigateToLanding]);
 
-  if (!selectedFeed) {
+  const handleNavigateToPost = useCallback((postId: string) => {
+    if (route.feedId) {
+      navigateToPost(route.feedId, postId);
+    }
+  }, [route.feedId, navigateToPost]);
+
+  // Get feed config from the registry
+  const feed = route.feedId ? getFeedById(route.feedId) : null;
+
+  if (!feed) {
     return <LandingPage onSelectFeed={handleSelectFeed} />;
   }
 
-  return <FeedView feed={selectedFeed} onBack={handleBack} />;
+  return (
+    <FeedView
+      feed={feed}
+      postId={route.postId}
+      onBack={handleBack}
+      onNavigateToPost={handleNavigateToPost}
+      onClearPostId={clearPostId}
+    />
+  );
 }
 
 export default App;

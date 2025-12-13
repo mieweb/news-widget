@@ -163,6 +163,15 @@
   animation: like-pop 0.3s ease;
 }
 
+.action-button.open-link {
+  text-decoration: none;
+  color: #0095f6;
+}
+
+.action-button.open-link:hover {
+  color: #00376b;
+}
+
 @keyframes like-pop {
   0% { transform: scale(1); }
   50% { transform: scale(1.3); }

@@ -197,6 +197,17 @@ export const FeedCard: React.FC<FeedCardProps> = ({
         <button className="action-button" onClick={handleShare} aria-label="Share">
           📤 Share
         </button>
+        {post.link && (
+          <a
+            href={post.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="action-button open-link"
+            aria-label="Open article"
+          >
+            🔗 Open
+          </a>
+        )}
       </div>
 
       {/* Caption */}

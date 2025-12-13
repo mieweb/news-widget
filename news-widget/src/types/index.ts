@@ -10,6 +10,7 @@ export interface Post {
   mediaType: MediaType;
   mediaUrl?: string;
   thumbnailUrl?: string;
+  link?: string;
   timestamp: Date;
   likes: number;
   commentCount: number;

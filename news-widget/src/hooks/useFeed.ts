@@ -88,6 +88,7 @@ function parseRSS(xmlString: string): Post[] {
     const pubDate = item.querySelector('pubDate')?.textContent;
     const creator = item.getElementsByTagNameNS('*', 'creator')[0]?.textContent || 'Anonymous';
     const guid = item.querySelector('guid')?.textContent || `post-${index}`;
+    const link = item.querySelector('link')?.textContent || undefined;
 
     const media = extractMediaFromContent(content);
     const caption = stripHtml(description).slice(0, 200);
@@ -101,6 +102,7 @@ function parseRSS(xmlString: string): Post[] {
       mediaType: media.type,
       mediaUrl: media.url,
       thumbnailUrl: media.thumbnail,
+      link,
       timestamp: pubDate ? new Date(pubDate) : new Date(),
       likes: Math.floor(Math.random() * 100), // Mock data
       commentCount: Math.floor(Math.random() * 20), // Mock data

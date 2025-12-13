@@ -7,12 +7,45 @@ interface FeedProps {
   posts: Post[];
   onToggleLike: (postId: string) => void;
   onOpenFullscreen: (post: Post) => void;
+  scrollToPostId?: string | null;
+  onScrolledToPost?: () => void;
+  onNavigateToPost?: (postId: string) => void;
 }
 
-export const Feed: React.FC<FeedProps> = ({ posts, onToggleLike, onOpenFullscreen }) => {
+export const Feed: React.FC<FeedProps> = ({
+  posts,
+  onToggleLike,
+  onOpenFullscreen,
+  scrollToPostId,
+  onScrolledToPost,
+  onNavigateToPost,
+}) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const hasScrolledToPost = useRef(false);
+
+  // Handle scrolling to a specific post
+  useEffect(() => {
+    if (scrollToPostId && posts.length > 0 && !hasScrolledToPost.current) {
+      const element = cardRefs.current.get(scrollToPostId);
+      if (element) {
+        hasScrolledToPost.current = true;
+        // Use a slight delay to ensure layout is complete
+        requestAnimationFrame(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          onScrolledToPost?.();
+        });
+      }
+    }
+  }, [scrollToPostId, posts, onScrolledToPost]);
+
+  // Reset scroll tracking when scrollToPostId changes
+  useEffect(() => {
+    if (!scrollToPostId) {
+      hasScrolledToPost.current = false;
+    }
+  }, [scrollToPostId]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -21,6 +54,12 @@ export const Feed: React.FC<FeedProps> = ({ posts, onToggleLike, onOpenFullscree
           if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
             const index = parseInt(entry.target.getAttribute('data-index') || '0', 10);
             setActiveIndex(index);
+            
+            // Update URL when a post becomes active (optional navigation update)
+            const postId = entry.target.getAttribute('data-post-id');
+            if (postId && onNavigateToPost) {
+              onNavigateToPost(postId);
+            }
           }
         });
       },
@@ -32,7 +71,7 @@ export const Feed: React.FC<FeedProps> = ({ posts, onToggleLike, onOpenFullscree
     });
 
     return () => observer.disconnect();
-  }, [posts]);
+  }, [posts, onNavigateToPost]);
 
   const setCardRef = useCallback((id: string, element: HTMLDivElement | null) => {
     if (element) {
@@ -58,6 +97,7 @@ export const Feed: React.FC<FeedProps> = ({ posts, onToggleLike, onOpenFullscree
             key={post.id}
             ref={(el) => setCardRef(post.id, el)}
             data-index={index}
+            data-post-id={post.id}
             className="feed-row"
           >
             <FeedCard
