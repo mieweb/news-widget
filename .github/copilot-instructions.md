@@ -147,6 +147,14 @@ npm run lint     # Run ESLint
 - **Simple workflows**: GitHub Actions should be thin wrappers around scripts, not contain complex logic
 - **Easy debugging**: When CI fails, developers can reproduce the issue locally by running the same script
 
+## Browser Testing with MCP
+
+### 🌐 Keep Browser Open
+- **Never close the browser** after running MCP browser commands unless explicitly asked
+- Let the user interact with the browser after navigation or testing
+- Only use `browser_close` when the user specifically requests it
+- Take snapshots to report state, but leave the browser running for manual inspection
+
 ## Quick Reference
 
 ### 🪶 All Changes should be considered for Pull Request Philosophy
