@@ -23,6 +23,9 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   const [isMuted, setIsMuted] = useState(true);
   const [showComments, setShowComments] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isCaptionExpanded, setIsCaptionExpanded] = useState(false);
+  const [isCaptionTruncated, setIsCaptionTruncated] = useState(false);
+  const captionRef = useRef<HTMLElement>(null);
   const lastTapRef = useRef<number>(0);
 
   const shouldPlay = isActive && isVisible && (post.mediaType === 'video' || post.mediaType === 'youtube');
@@ -30,6 +33,38 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   useEffect(() => {
     setIsPlaying(shouldPlay);
   }, [shouldPlay]);
+
+  // Detect if caption is truncated (works with -webkit-line-clamp)
+  useEffect(() => {
+    const checkTruncation = () => {
+      if (captionRef.current) {
+        const element = captionRef.current;
+        // Clone the element to measure unclamped height
+        const clone = element.cloneNode(true) as HTMLElement;
+        clone.style.position = 'absolute';
+        clone.style.visibility = 'hidden';
+        clone.style.height = 'auto';
+        clone.style.maxHeight = 'none';
+        clone.style.webkitLineClamp = 'unset';
+        clone.style.display = 'block';
+        clone.style.width = `${element.clientWidth}px`;
+        
+        document.body.appendChild(clone);
+        const fullHeight = clone.scrollHeight;
+        document.body.removeChild(clone);
+        
+        const clampedHeight = element.clientHeight;
+        setIsCaptionTruncated(fullHeight > clampedHeight + 2);
+      }
+    };
+    // Run after a short delay to ensure CSS is applied
+    const timer = setTimeout(checkTruncation, 100);
+    window.addEventListener('resize', checkTruncation);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkTruncation);
+    };
+  }, [post.caption, post.mediaType]);
 
   const handleDoubleTap = useCallback(() => {
     const now = Date.now();
@@ -120,9 +155,21 @@ export const FeedCard: React.FC<FeedCardProps> = ({
       case 'none':
         return (
           <div className="media-container media-caption" onClick={handleDoubleTap}>
-            <div className="caption-content">
+            <div className={`caption-content ${isCaptionExpanded ? 'expanded' : ''}`}>
               <strong>{post.author.name}</strong>
-              <p>{post.caption}</p>
+              <p ref={captionRef as React.RefObject<HTMLParagraphElement>}>{post.caption}</p>
+              {(isCaptionTruncated || isCaptionExpanded) && (
+                <button
+                  className="caption-toggle"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsCaptionExpanded(!isCaptionExpanded);
+                  }}
+                  aria-label={isCaptionExpanded ? 'Show less' : 'Show more'}
+                >
+                  {isCaptionExpanded ? 'less' : '...more'}
+                </button>
+              )}
             </div>
           </div>
         );
@@ -212,8 +259,18 @@ export const FeedCard: React.FC<FeedCardProps> = ({
 
       {/* Caption - only show if not already displayed in media area */}
       {post.mediaType !== 'none' && (
-        <div className="card-caption">
-          <strong>{post.author.name}</strong> {post.caption}
+        <div className={`card-caption ${isCaptionExpanded ? 'expanded' : ''}`}>
+          <strong>{post.author.name}</strong>
+          <span ref={captionRef as React.RefObject<HTMLSpanElement>} className="caption-text">{post.caption}</span>
+          {(isCaptionTruncated || isCaptionExpanded) && (
+            <button
+              className="caption-toggle"
+              onClick={() => setIsCaptionExpanded(!isCaptionExpanded)}
+              aria-label={isCaptionExpanded ? 'Show less' : 'Show more'}
+            >
+              {isCaptionExpanded ? 'less' : '...more'}
+            </button>
+          )}
         </div>
       )}
 
