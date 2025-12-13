@@ -82,7 +82,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
       case 'youtube':
       case 'video':
         return (
-          <div className="media-container" onClick={handleDoubleTap}>
+          <div className="media-container media-video" onClick={handleDoubleTap}>
             <ReactPlayer
               src={post.mediaUrl}
               playing={isPlaying}
