@@ -13,6 +13,8 @@ interface FullscreenViewerProps {
   capabilities?: FeedCapabilities;
   /** Base URL for the feed source (e.g., Discourse instance) */
   feedBaseUrl?: string;
+    /** Feed ID for deep linking */
+    feedId?: string;
   /** Whether user is authenticated with Discourse */
   isAuthenticated?: boolean;
   /** Function to post comment to Discourse */
@@ -30,6 +32,7 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
   onToggleLike,
   capabilities,
   feedBaseUrl,
+    feedId,
   isAuthenticated,
   postToDiscourse,
   onLogin,
@@ -89,6 +92,13 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
 
   const currentPost = posts[currentIndex];
 
+  // Keep URL in sync with currently viewed post in fullscreen
+  useEffect(() => {
+    if (currentPost && feedId) {
+      window.location.hash = `/feed/${feedId}/post/${currentPost.id}`;
+    }
+  }, [currentPost, feedId]);
+
   if (!currentPost) {
     return null;
   }
@@ -121,6 +131,7 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
             onToggleLike={onToggleLike}
             capabilities={capabilities}
             feedBaseUrl={feedBaseUrl}
+                        feedId={feedId}
             isAuthenticated={isAuthenticated}
             postToDiscourse={postToDiscourse}
             onLogin={onLogin}

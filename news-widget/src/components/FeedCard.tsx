@@ -24,6 +24,8 @@ interface FeedCardProps {
   feedBaseUrl?: string;
   /** Whether user is authenticated with Discourse */
   isAuthenticated?: boolean;
+    /** Feed ID for deep linking */
+    feedId?: string;
   /** Function to post comment to Discourse */
   postToDiscourse?: (topicId: number, content: string) => Promise<boolean>;
   /** Function to open login */
@@ -40,6 +42,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   capabilities = DEFAULT_CAPABILITIES,
   feedBaseUrl,
   isAuthenticated,
+    feedId,
   postToDiscourse,
   onLogin,
   onCheckLogin,
@@ -117,24 +120,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
     lastTapRef.current = now;
   }, [onToggleLike, post.id, cardRef, supportsLikes]);
 
-  const handleShare = useCallback(async () => {
-    const shareData = {
-      title: post.caption,
-      text: `Check out this post by ${post.author.name}`,
-      url: window.location.href,
-    };
 
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard!');
-      }
-    } catch (err) {
-      console.error('Share failed:', err);
-    }
-  }, [post]);
 
   const formatTimestamp = (date: Date): string => {
     const now = new Date();
@@ -284,9 +270,15 @@ export const FeedCard: React.FC<FeedCardProps> = ({
             💬 {post.commentCount === undefined ? '–' : displayedCommentCount}
           </button>
         )}
-        <button className="action-button" onClick={handleShare} aria-label="Share">
-          📤 Share
-        </button>
+        {feedId && (
+          <a
+            href={`/#/feed/${feedId}/post/${post.id}`}
+            className="action-button"
+            aria-label="Zoom to post"
+          >
+            🔍 Zoom
+          </a>
+        )}
         {post.link && (
           <a
             href={post.link}

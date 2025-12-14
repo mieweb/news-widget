@@ -111,6 +111,7 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
           onScrolledToPost={onClearPostId}
           capabilities={feed.capabilities}
           feedBaseUrl={feedBaseUrl}
+                    feedId={feed.id}
           isAuthenticated={isAuthenticated}
           postToDiscourse={postComment}
           onLogin={openLogin}
@@ -123,6 +124,7 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
           posts={posts}
           initialIndex={fullscreenIndex}
           onClose={handleCloseFullscreen}
+                    feedId={feed.id}
           onToggleLike={toggleLike}
           capabilities={feed.capabilities}
           feedBaseUrl={feedBaseUrl}

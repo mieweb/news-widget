@@ -17,6 +17,16 @@ test.describe('Test Server Feed', () => {
     await expect(page.getByText('This is a welcome post for testing')).toBeVisible();
   });
 
+  test('second post zoom link should deep-link to post', async ({ page }) => {
+    await page.goto('/#/feed/test-server');
+    // Locate the second share link by accessible name
+    const zoomLinks = page.getByRole('link', { name: 'Zoom to post' });
+    await expect(zoomLinks).toHaveCount(4);
+    const secondZoom = zoomLinks.nth(1);
+    const href = await secondZoom.getAttribute('href');
+    expect(href).toMatch('/#/feed/test-server/post/');
+  });
+
   test('should handle likes and persist on reload', async ({ page }) => {
     // Note: This test validates that likes can be toggled and persistence works.
     // Using heart emoji visual state as the indicator of like status.

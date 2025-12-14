@@ -204,6 +204,11 @@
   transition: transform 0.1s;
 }
 
+/* Remove underline for action links */
+a.action-button {
+  text-decoration: none;
+}
+
 .action-button:hover {
   transform: scale(1.05);
 }

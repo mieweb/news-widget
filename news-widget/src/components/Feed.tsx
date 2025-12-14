@@ -14,6 +14,8 @@ interface FeedProps {
   capabilities?: FeedCapabilities;
   /** Base URL for the feed source (e.g., Discourse instance) */
   feedBaseUrl?: string;
+    /** Feed ID for deep linking */
+    feedId?: string;
   /** Whether user is authenticated with Discourse */
   isAuthenticated?: boolean;
   /** Function to post comment to Discourse */
@@ -33,6 +35,7 @@ export const Feed: React.FC<FeedProps> = ({
   onNavigateToPost,
   capabilities,
   feedBaseUrl,
+    feedId,
   isAuthenticated,
   postToDiscourse,
   onLogin,
@@ -73,11 +76,7 @@ export const Feed: React.FC<FeedProps> = ({
             const index = parseInt(entry.target.getAttribute('data-index') || '0', 10);
             setActiveIndex(index);
             
-            // Update URL when a post becomes active (optional navigation update)
-            const postId = entry.target.getAttribute('data-post-id');
-            if (postId && onNavigateToPost) {
-              onNavigateToPost(postId);
-            }
+            // Track active post only; do not change URL here to avoid auto-opening fullscreen
           }
         });
       },
@@ -89,7 +88,7 @@ export const Feed: React.FC<FeedProps> = ({
     });
 
     return () => observer.disconnect();
-  }, [posts, onNavigateToPost]);
+  }, [posts, onNavigateToPost, feedId]);
 
   const setCardRef = useCallback((id: string, element: HTMLDivElement | null) => {
     if (element) {
@@ -125,6 +124,7 @@ export const Feed: React.FC<FeedProps> = ({
               onOpenFullscreen={onOpenFullscreen}
               capabilities={capabilities}
               feedBaseUrl={feedBaseUrl}
+                            feedId={feedId}
               isAuthenticated={isAuthenticated}
               postToDiscourse={postToDiscourse}
               onLogin={onLogin}
