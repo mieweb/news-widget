@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Feed, FullscreenViewer, LandingPage } from './components';
 import { useFeed, useRouter, useDiscourseAuth, getDiscourseBaseUrl } from './hooks';
 import { getFeedById, type FeedConfig } from './data/feedRegistry';
@@ -141,6 +141,18 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
 
 function App() {
   const { route, navigateToFeed, navigateToPost, navigateToLanding, clearPostId } = useRouter();
+
+  // Handle Discourse topic URLs (e.g., /t/topic-slug/1001 or /api/test/t/topic-slug/1001)
+  useEffect(() => {
+    const path = window.location.pathname;
+    const topicMatch = path.match(/^(?:\/api\/test)?\/t\/([^/]+)\/(\d+)$/);
+    
+    if (topicMatch) {
+      const [, slug, topicId] = topicMatch;
+      // Redirect to the RSS feed view
+      window.location.href = `/api/test/t/${slug}/${topicId}`;
+    }
+  }, [navigateToFeed]);
 
   const handleSelectFeed = useCallback((feedId: string) => {
     navigateToFeed(feedId);

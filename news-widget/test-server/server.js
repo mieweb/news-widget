@@ -65,7 +65,7 @@ const SAMPLE_POSTS = [
     author: 'admin',
     description: 'This is a welcome post for testing the news widget.',
     pubDate: new Date(Date.now() - 1000 * 60 * 60).toUTCString(), // 1 hour ago
-    link: 'http://localhost:3001/t/welcome-to-test/1001',
+    link: '/api/test/t/welcome-to-test/1001',
     mediaUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     mediaType: 'video/youtube',
     likes: 42,
@@ -77,7 +77,7 @@ const SAMPLE_POSTS = [
     author: 'tester',
     description: 'Let\'s test how YouTube videos are embedded in the feed.',
     pubDate: new Date(Date.now() - 1000 * 60 * 60 * 2).toUTCString(), // 2 hours ago
-    link: 'http://localhost:3001/t/testing-video-embeds/1002',
+    link: '/api/test/t/testing-video-embeds/1002',
     mediaUrl: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
     mediaType: 'video/youtube',
     likes: 128,
@@ -89,7 +89,7 @@ const SAMPLE_POSTS = [
     author: 'writer',
     description: 'This post has no media attached. It demonstrates how text-only posts are displayed in the news feed widget with a nice gradient background.',
     pubDate: new Date(Date.now() - 1000 * 60 * 60 * 3).toUTCString(), // 3 hours ago
-    link: 'http://localhost:3001/t/text-only-example/1003',
+    link: '/api/test/t/text-only-example/1003',
     mediaUrl: null,
     mediaType: null,
     likes: 89,
@@ -101,7 +101,7 @@ const SAMPLE_POSTS = [
     author: 'developer',
     description: 'Discussing the new features in React 19 and how they improve developer experience.',
     pubDate: new Date(Date.now() - 1000 * 60 * 60 * 5).toUTCString(), // 5 hours ago
-    link: 'http://localhost:3001/t/react-19-features/1004',
+    link: '/api/test/t/react-19-features/1004',
     mediaUrl: 'https://www.youtube.com/watch?v=T8TZQ6k4SLE',
     mediaType: 'video/youtube',
     likes: 256,
@@ -184,6 +184,74 @@ app.get('/c/:category/:id.rss', (req, res) => {
   console.log(`[RSS] Serving feed for category: ${req.params.category}`);
   res.type('application/rss+xml');
   res.send(generateRssFeed(SAMPLE_POSTS));
+});
+
+/**
+ * Topic RSS endpoint (display single topic as RSS)
+ * GET /t/:slug/:id.rss
+ */
+app.get('/t/:slug/:id.rss', (req, res) => {
+  const topicId = parseInt(req.params.id, 10);
+  const post = SAMPLE_POSTS.find(p => p.id === topicId);
+  
+  if (!post) {
+    return res.status(404).send('Topic not found');
+  }
+  
+  console.log(`[RSS] Serving single topic RSS: ${topicId}`);
+  res.type('application/rss+xml');
+  res.send(generateRssFeed([post]));
+});
+
+/**
+ * Topic HTML endpoint (display single topic as HTML)
+ * GET /t/:slug/:id
+ */
+app.get('/t/:slug/:id', (req, res) => {
+  const topicId = parseInt(req.params.id, 10);
+  const post = SAMPLE_POSTS.find(p => p.id === topicId);
+  
+  if (!post) {
+    return res.status(404).send('Topic not found');
+  }
+  
+  console.log(`[HTML] Serving topic: ${topicId}`);
+  res.type('text/html');
+  res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <title>${post.title}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    h1 { color: #333; }
+    .meta { color: #666; margin: 20px 0; }
+    .content { line-height: 1.6; }
+    .stats { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    .media { margin: 20px 0; }
+    a { color: #0066cc; }
+    pre { background: #f5f5f5; padding: 15px; border-radius: 4px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>${post.title}</h1>
+  <div class="meta">
+    By <strong>${post.author}</strong> • ${new Date(post.pubDate).toLocaleString()}
+  </div>
+  <div class="stats">
+    ❤️ ${post.likes} likes • 💬 ${post.replies} replies
+  </div>
+  <div class="content">
+    <p>${post.description}</p>
+  </div>
+  ${post.mediaUrl ? `<div class="media">
+    <p><strong>Media:</strong> <a href="${post.mediaUrl}" target="_blank">${post.mediaUrl}</a></p>
+  </div>` : ''}
+  <hr>
+  <h2>RSS Feed (Raw)</h2>
+  <pre>${generateRssFeed([post]).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+  <p><a href="/t/${req.params.slug}/${req.params.id}.rss">View as RSS XML</a></p>
+</body>
+</html>`);
 });
 
 /**

@@ -107,7 +107,53 @@ function parseRSS(xmlString: string): Post[] {
     const guid = item.querySelector('guid')?.textContent || `post-${index}`;
     const link = item.querySelector('link')?.textContent || undefined;
 
-    const media = extractMediaFromContent(content);
+    // Check for media in <enclosure> or <media:content> tags first
+    const enclosure = item.querySelector('enclosure');
+    const mediaContent = item.getElementsByTagNameNS('*', 'content')[0];
+    
+    let media: { type: MediaType; url?: string; thumbnail?: string };
+    
+    if (enclosure) {
+      const url = enclosure.getAttribute('url') || '';
+      const type = enclosure.getAttribute('type') || '';
+      
+      if (url.includes('youtube.com') || url.includes('youtu.be') || type.includes('youtube')) {
+        const youtubeId = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+        media = {
+          type: 'youtube',
+          url,
+          thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : undefined,
+        };
+      } else if (type.startsWith('video/') || url.match(/\.(mp4|webm|mov)$/i)) {
+        media = { type: 'video', url };
+      } else if (type.startsWith('image/') || url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        media = { type: 'image', url };
+      } else {
+        media = extractMediaFromContent(content);
+      }
+    } else if (mediaContent) {
+      const url = mediaContent.getAttribute('url') || '';
+      const type = mediaContent.getAttribute('type') || '';
+      
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const youtubeId = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+        media = {
+          type: 'youtube',
+          url,
+          thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : undefined,
+        };
+      } else if (type.startsWith('video/')) {
+        media = { type: 'video', url };
+      } else if (type.startsWith('image/')) {
+        media = { type: 'image', url };
+      } else {
+        media = extractMediaFromContent(content);
+      }
+    } else {
+      // Fallback to extracting from content
+      media = extractMediaFromContent(content);
+    }
+    
     const caption = stripHtml(description).slice(0, 200);
     const topicId = extractTopicId(guid, link);
 

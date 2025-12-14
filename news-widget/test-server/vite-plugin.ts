@@ -415,6 +415,69 @@ export function testDiscourseServer(): Plugin {
           return;
         }
 
+        // Topic HTML view: GET /api/test/t/:slug/:id
+        const topicHtmlMatch = url.match(/^\/api\/test\/t\/([^/]+)\/(\d+)$/);
+        if (topicHtmlMatch && method === 'GET') {
+          const slug = topicHtmlMatch[1];
+          const topicId = parseInt(topicHtmlMatch[2], 10);
+          const post = SAMPLE_POSTS.find(p => p.id === topicId);
+          
+          if (!post) {
+            res.writeHead(404, { 'Content-Type': 'text/html' });
+            res.end('<h1>Topic Not Found</h1>');
+            return;
+          }
+
+          console.log(`[Test Server] Serving topic HTML: ${topicId}`);
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(`<!DOCTYPE html>
+<html>
+<head>
+  <title>${post.title}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }
+    .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h1 { color: #333; margin-top: 0; }
+    .meta { color: #666; margin: 20px 0; font-size: 14px; }
+    .content { line-height: 1.6; }
+    .stats { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    .media { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 4px; }
+    .media a { color: #0066cc; word-break: break-all; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    pre { background: #f5f5f5; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; line-height: 1.4; }
+    .actions { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>${post.title}</h1>
+    <div class="meta">
+      By <strong>${post.author}</strong> • ${new Date(post.pubDate).toLocaleString()}
+    </div>
+    <div class="stats">
+      ❤️ ${post.likes} likes • 💬 ${post.replies} replies
+    </div>
+    <div class="content">
+      <p>${post.description}</p>
+    </div>
+    ${post.mediaUrl ? `<div class="media">
+      <p><strong>Media:</strong> <a href="${post.mediaUrl}" target="_blank">${post.mediaUrl}</a></p>
+    </div>` : ''}
+    <div class="actions">
+      <h2>Raw RSS Feed</h2>
+      <pre>${generateRssFeed().replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+      <p>
+        <a href="/api/test/c/testing/1.rss">View full RSS feed</a> •
+        <a href="/api/test/t/${topicId}.json">View as JSON</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>`);
+          return;
+        }
+
         // Not a test server route, continue to next middleware
         next();
       });
