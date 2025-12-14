@@ -429,10 +429,11 @@ export function testDiscourseServer(): Plugin {
           }
 
           console.log(`[Test Server] Serving topic HTML: ${topicId}`);
-          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
           res.end(`<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>${post.title}</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }

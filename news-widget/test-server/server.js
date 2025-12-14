@@ -216,10 +216,11 @@ app.get('/t/:slug/:id', (req, res) => {
   }
   
   console.log(`[HTML] Serving topic: ${topicId}`);
-  res.type('text/html');
+  res.type('text/html; charset=utf-8');
   res.send(`<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>${post.title}</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
