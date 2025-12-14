@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect, useState } from 'react';
+import React, { useRef, useCallback, useEffect, useState, forwardRef } from 'react';
 import ReactPlayer from 'react-player';
 import type { Post, FeedCapabilities } from '../types';
 import { useVisibility } from '../hooks/useVisibility';
@@ -32,9 +32,13 @@ interface FeedCardProps {
   onLogin?: () => void;
   /** Function to recheck login status */
   onCheckLogin?: () => void;
+  /** Index in feed for keyboard navigation */
+  feedIndex?: number;
+  /** Total posts in feed for keyboard navigation */
+  feedLength?: number;
 }
 
-export const FeedCard: React.FC<FeedCardProps> = ({
+export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
   post,
   isActive = true,
   onToggleLike,
@@ -46,7 +50,9 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   postToDiscourse,
   onLogin,
   onCheckLogin,
-}) => {
+  feedIndex = 0,
+  feedLength = 1,
+}, ref) => {
   const { supportsLikes, supportsComments } = capabilities;
   const [cardRef, isVisible] = useVisibility<HTMLDivElement>({ threshold: 0.6 });
   const [isMuted, setIsMuted] = useState(true);
@@ -221,7 +227,25 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   };
 
   return (
-    <div ref={cardRef} className="feed-card">
+    <div 
+      ref={(el) => {
+        // Support both the internal visibility ref and the forwarded ref
+        if (cardRef && typeof cardRef === 'object') {
+          if ('current' in cardRef) {
+            cardRef.current = el;
+          }
+        }
+        if (ref && typeof ref === 'object' && 'current' in ref) {
+          ref.current = el;
+        } else if (typeof ref === 'function') {
+          ref(el);
+        }
+      }}
+      className="feed-card"
+      tabIndex={isActive ? 0 : -1}
+      role="article"
+      aria-label={`Post ${feedIndex + 1} of ${feedLength} by ${post.author.name}`}
+    >
       {/* Header */}
       <div className="card-header">
         <Avatar
@@ -325,4 +349,6 @@ export const FeedCard: React.FC<FeedCardProps> = ({
       )}
     </div>
   );
-};
+});
+
+FeedCard.displayName = 'FeedCard';

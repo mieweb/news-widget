@@ -98,6 +98,41 @@ export const Feed: React.FC<FeedProps> = ({
     }
   }, []);
 
+  // Handle arrow key navigation
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = Math.min(activeIndex + 1, posts.length - 1);
+      if (nextIndex !== activeIndex) {
+        setActiveIndex(nextIndex);
+        const nextPostId = posts[nextIndex].id;
+        const nextElement = cardRefs.current.get(nextPostId);
+        if (nextElement) {
+          nextElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          nextElement.focus();
+        }
+      }
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = Math.max(activeIndex - 1, 0);
+      if (prevIndex !== activeIndex) {
+        setActiveIndex(prevIndex);
+        const prevPostId = posts[prevIndex].id;
+        const prevElement = cardRefs.current.get(prevPostId);
+        if (prevElement) {
+          prevElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          prevElement.focus();
+        }
+      }
+    }
+  }, [activeIndex, posts]);
+
+  // Attach keyboard listener
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   if (posts.length === 0) {
     return (
       <div className="feed-empty">
@@ -112,23 +147,25 @@ export const Feed: React.FC<FeedProps> = ({
         {posts.map((post, index) => (
           <div
             key={post.id}
-            ref={(el) => setCardRef(post.id, el)}
             data-index={index}
             data-post-id={post.id}
             className="feed-row"
           >
             <FeedCard
+              ref={(el) => setCardRef(post.id, el)}
               post={post}
               isActive={index === activeIndex}
               onToggleLike={onToggleLike}
               onOpenFullscreen={onOpenFullscreen}
               capabilities={capabilities}
               feedBaseUrl={feedBaseUrl}
-                            feedId={feedId}
+              feedId={feedId}
               isAuthenticated={isAuthenticated}
               postToDiscourse={postToDiscourse}
               onLogin={onLogin}
               onCheckLogin={onCheckLogin}
+              feedIndex={index}
+              feedLength={posts.length}
             />
           </div>
         ))}
