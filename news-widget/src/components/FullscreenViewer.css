@@ -54,7 +54,7 @@
 
 .fullscreen-card-wrapper {
   flex: 1;
-  max-width: calc(100vw - 120px);
+  max-width: 95vw;
   max-height: 85vh;
   width: 100%;
   overflow-y: auto;
@@ -142,8 +142,8 @@
 /* Make cards and videos larger in fullscreen mode */
 .fullscreen-card-wrapper .feed-card {
   max-width: none;
-  width: fit-content;
-  max-height: 95vh;
+  width: 100%;
+  max-height: none;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
@@ -187,12 +187,12 @@
 }
 
 /* Video container should be as large as possible while maintaining aspect ratio */
-/* Account for header (~50px), actions (~40px), caption (~60px) = ~150px */
+/* Account for header (~56px), actions (~50px), caption (~70px) = ~176px + margins */
 .fullscreen-card-wrapper .media-container.media-video {
-  width: 90vw;
-  height: calc(90vw * 9 / 16);
-  max-height: calc(95vh - 150px);
-  max-width: calc((95vh - 150px) * 16 / 9);
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  max-height: calc(85vh - 180px);
   flex-shrink: 0;
 }
 
