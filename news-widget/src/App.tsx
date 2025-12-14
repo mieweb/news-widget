@@ -50,7 +50,8 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
 
   const handleCloseFullscreen = useCallback(() => {
     setFullscreenPost(null);
-  }, []);
+    onClearPostId();
+  }, [onClearPostId]);
 
   const fullscreenIndex = fullscreenPost
     ? posts.findIndex((p) => p.id === fullscreenPost.id)
@@ -108,7 +109,7 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
           onToggleLike={toggleLike}
           onOpenFullscreen={handleOpenFullscreen}
           scrollToPostId={postId}
-          onScrolledToPost={onClearPostId}
+          onScrolledToPost={fullscreenPost ? undefined : onClearPostId}
           capabilities={feed.capabilities}
           feedBaseUrl={feedBaseUrl}
                     feedId={feed.id}
