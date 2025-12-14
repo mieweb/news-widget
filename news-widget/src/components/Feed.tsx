@@ -102,8 +102,17 @@ export const Feed: React.FC<FeedProps> = ({
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       e.preventDefault();
-      const nextIndex = Math.min(activeIndex + 1, posts.length - 1);
-      if (nextIndex !== activeIndex) {
+      // Find the currently focused post index
+      let currentIndex = activeIndex;
+      const focusedElement = document.activeElement as HTMLElement;
+      const focusedIndex = parseInt(focusedElement?.getAttribute('data-index') || String(activeIndex), 10);
+      if (focusedIndex >= 0) {
+        currentIndex = focusedIndex;
+      }
+      
+      // Stop at the end, don't wrap
+      const nextIndex = Math.min(currentIndex + 1, posts.length - 1);
+      if (nextIndex !== currentIndex) {
         setActiveIndex(nextIndex);
         const nextPostId = posts[nextIndex].id;
         const nextElement = cardRefs.current.get(nextPostId);
@@ -114,8 +123,17 @@ export const Feed: React.FC<FeedProps> = ({
       }
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
       e.preventDefault();
-      const prevIndex = Math.max(activeIndex - 1, 0);
-      if (prevIndex !== activeIndex) {
+      // Find the currently focused post index
+      let currentIndex = activeIndex;
+      const focusedElement = document.activeElement as HTMLElement;
+      const focusedIndex = parseInt(focusedElement?.getAttribute('data-index') || String(activeIndex), 10);
+      if (focusedIndex >= 0) {
+        currentIndex = focusedIndex;
+      }
+      
+      // Stop at the start, don't wrap
+      const prevIndex = Math.max(currentIndex - 1, 0);
+      if (prevIndex !== currentIndex) {
         setActiveIndex(prevIndex);
         const prevPostId = posts[prevIndex].id;
         const prevElement = cardRefs.current.get(prevPostId);

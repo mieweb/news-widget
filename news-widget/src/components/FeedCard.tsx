@@ -244,6 +244,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
       className="feed-card"
       tabIndex={isActive ? 0 : -1}
       role="article"
+      data-index={feedIndex}
       aria-label={`Post ${feedIndex + 1} of ${feedLength} by ${post.author.name}`}
     >
       {/* Header */}
