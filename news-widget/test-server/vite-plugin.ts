@@ -110,6 +110,15 @@ function saveComments(comments: Record<number, Array<{ id: number; username: str
 
 let comments = loadComments();
 
+// In-memory likes storage: { topicId: likeCount }
+// Resets to initial values on server restart
+const likes: Record<number, number> = {
+  1001: 42,
+  1002: 128,
+  1003: 89,
+  1004: 256,
+};
+
 /**
  * Generate RSS XML feed
  */
@@ -120,6 +129,9 @@ function generateRssFeed(): string {
       mediaTag = `<enclosure url="${post.mediaUrl}" type="${post.mediaType}" />`;
     }
     
+    // Use current like count from memory, fallback to initial value
+    const currentLikes = likes[post.id] ?? post.likes;
+    
     return `
     <item>
       <title><![CDATA[${post.title}]]></title>
@@ -127,7 +139,7 @@ function generateRssFeed(): string {
       <description><![CDATA[${post.description}]]></description>
       <pubDate>${post.pubDate}</pubDate>
       <dc:creator><![CDATA[${post.author}]]></dc:creator>
-      <discourse:like_count>${post.likes}</discourse:like_count>
+      <discourse:like_count>${currentLikes}</discourse:like_count>
       <discourse:reply_count>${post.replies}</discourse:reply_count>
       ${mediaTag}
     </item>`;
@@ -246,7 +258,7 @@ export function testDiscourseServer(): Plugin {
           sendJson(res, {
             id: topicId,
             title: post.title,
-            like_count: post.likes,
+            like_count: likes[topicId] ?? post.likes,
             reply_count: topicComments.length,
             post_stream: { posts },
           });
@@ -262,6 +274,40 @@ export function testDiscourseServer(): Plugin {
             console.log('[Test Server] Auth check: not logged in');
             sendJson(res, { error: 'Not logged in' }, 404);
           }
+          return;
+        }
+
+        // Toggle like: POST /api/test/posts/:id/like
+        const likeMatch = url.match(/^\/api\/test\/posts\/(\d+)\/like/);
+        if (likeMatch && method === 'POST') {
+          const postId = parseInt(likeMatch[1], 10);
+          const post = SAMPLE_POSTS.find(p => p.id === postId);
+          
+          if (!post) {
+            sendJson(res, { error: 'Post not found' }, 404);
+            return;
+          }
+
+          // Toggle like (increment or decrement)
+          parseBody(req).then(body => {
+            const action = String(body.action || 'toggle');
+            
+            if (action === 'like') {
+              likes[postId] = (likes[postId] ?? post.likes) + 1;
+            } else if (action === 'unlike') {
+              likes[postId] = Math.max(0, (likes[postId] ?? post.likes) - 1);
+            } else {
+              // Toggle based on current state - not ideal but works for now
+              likes[postId] = (likes[postId] ?? post.likes) + 1;
+            }
+
+            console.log(`[Test Server] Like toggled on post ${postId}, new count: ${likes[postId]}`);
+            sendJson(res, {
+              success: true,
+              post_id: postId,
+              like_count: likes[postId],
+            });
+          });
           return;
         }
 

@@ -32,6 +32,9 @@ Thumbs.db
 
 # Testing/Automation
 .playwright-mcp/
+test-results/
+playwright-report/
+playwright/.cache/
 
 # Environment files
 .env

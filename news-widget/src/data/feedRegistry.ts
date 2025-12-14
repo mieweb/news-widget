@@ -22,6 +22,28 @@ export interface FeedSection {
  */
 export const FEED_SECTIONS: FeedSection[] = [
   {
+    title: 'Demo Feeds',
+    feeds: [
+      {
+        id: 'test-server',
+        name: 'Test Server',
+        description: 'Local Discourse-like test server',
+        // Uses embedded Vite plugin - no separate server needed
+        url: 'http://localhost:5173/api/test/c/testing/1.rss',
+        emoji: '🧪',
+        capabilities: { supportsLikes: true, supportsComments: true },
+      },
+      {
+        id: 'sample',
+        name: 'Sample Feed',
+        description: 'Demo content without engagement',
+        url: SAMPLE_FEED_NO_COMMENTS_URL,
+        emoji: '🎭',
+        // No capabilities - defaults to no likes/comments
+      },
+    ],
+  },
+  {
     title: 'Enterprise Health',
     feeds: [
       {
@@ -47,28 +69,6 @@ export const FEED_SECTIONS: FeedSection[] = [
         url: 'https://community.enterprise.health/c/public-category/12.rss',
         emoji: '🌐',
         capabilities: { supportsLikes: true, supportsComments: true },
-      },
-    ],
-  },
-  {
-    title: 'Demo Feeds',
-    feeds: [
-      {
-        id: 'test-server',
-        name: 'Test Server',
-        description: 'Local Discourse-like test server',
-        // Uses embedded Vite plugin - no separate server needed
-        url: 'http://localhost:5173/api/test/c/testing/1.rss',
-        emoji: '🧪',
-        capabilities: { supportsLikes: true, supportsComments: true },
-      },
-      {
-        id: 'sample',
-        name: 'Sample Feed',
-        description: 'Demo content without engagement',
-        url: SAMPLE_FEED_NO_COMMENTS_URL,
-        emoji: '🎭',
-        // No capabilities - defaults to no likes/comments
       },
     ],
   },

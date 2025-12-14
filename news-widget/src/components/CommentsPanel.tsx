@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useComments, type UseCommentsOptions } from '../hooks/useComments';
 import { Avatar } from './Avatar';
 import './CommentsPanel.css';
@@ -43,10 +43,29 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
   const { comments, loading, fetchComments, addComment, retryComment } = useComments(postId, options);
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const commentsListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchComments();
   }, [fetchComments]);
+
+  // Refetch comments when auth status changes (to pick up synced pending comments)
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Small delay to let syncPendingComments finish
+      const timer = setTimeout(() => {
+        fetchComments();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, fetchComments]);
+
+  // Auto-scroll to bottom when comments change
+  useEffect(() => {
+    if (commentsListRef.current) {
+      commentsListRef.current.scrollTop = commentsListRef.current.scrollHeight;
+    }
+  }, [comments.length]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,15 +96,15 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
   };
 
   return (
-    <div className="comments-panel">
+    <div className="comments-panel" role="region" aria-label="Comments section">
       <div className="comments-header">
-        <h3>Comments</h3>
+        <h2>Comments</h2>
         <button className="close-button" onClick={onClose} aria-label="Close comments">
           ✕
         </button>
       </div>
 
-      <div className="comments-list">
+      <div className="comments-list" ref={commentsListRef} role="list" aria-label="Comments list">
         {loading ? (
           <div className="comments-loading">Loading comments...</div>
         ) : comments.length === 0 ? (
@@ -95,6 +114,8 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
             <div
               key={comment.id}
               className={`comment-item ${comment.status === 'pending' ? 'comment-pending' : ''}`}
+              role="listitem"
+              aria-label={`Comment from ${comment.author.name}: ${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}`}
             >
               <Avatar
                 name={comment.author.name}
@@ -109,13 +130,14 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
                 <div className="comment-meta">
                   <span className="comment-time">{formatTimestamp(comment.timestamp)}</span>
                   {comment.status === 'pending' && (
-                    <span className="comment-status pending">
+                    <span className="comment-status pending" role="status" aria-live="polite">
                       ⏳ Pending
                       {isAuthenticated && (
                         <button
                           type="button"
                           className="retry-button"
                           onClick={() => handleRetry(comment.id)}
+                          aria-label="Retry sending comment"
                         >
                           Retry
                         </button>
@@ -125,6 +147,7 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
                           type="button"
                           className="login-to-sync-button"
                           onClick={onLogin}
+                          aria-label="Login to sync comment"
                         >
                           Login to sync
                         </button>
@@ -138,7 +161,7 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
         )}
       </div>
 
-      <form className="comment-form" onSubmit={handleSubmit}>
+      <form className="comment-form" onSubmit={handleSubmit} aria-label="Add new comment">
         <input
           type="text"
           value={newComment}
@@ -146,23 +169,26 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
           placeholder={isAuthenticated ? "Add a comment..." : "Add a comment (pending until login)..."}
           className="comment-input"
           disabled={isSubmitting}
+          aria-label="Comment input field"
+          aria-describedby={!isAuthenticated ? "pending-note" : undefined}
         />
         <button
           type="submit"
           className="comment-submit"
           disabled={!newComment.trim() || isSubmitting}
+          aria-label="Post comment"
         >
           Post
         </button>
       </form>
       
       {!isAuthenticated && onLogin && (
-        <div className="login-prompt">
-          <button type="button" className="login-button" onClick={onLogin}>
+        <div className="login-prompt" role="region" aria-label="Login required" id="pending-note">
+          <button type="button" className="login-button" onClick={onLogin} aria-label="Login to Discourse">
             Login to Discourse
           </button>
           {onCheckLogin && (
-            <button type="button" className="check-login-button" onClick={onCheckLogin}>
+            <button type="button" className="check-login-button" onClick={onCheckLogin} aria-label="Check if logged in">
               Check login
             </button>
           )}

@@ -231,7 +231,11 @@ export function useComments(postId: string, options: UseCommentsOptions = {}) {
       const success = await postToDiscourse(topicId, comment.content);
       
       if (success) {
+        // Remove from localStorage
         removePendingComment(commentId);
+        // Remove from local state immediately
+        setComments(prev => prev.filter(c => c.id !== commentId));
+        // Fetch fresh comments from server
         await fetchComments();
         return true;
       }

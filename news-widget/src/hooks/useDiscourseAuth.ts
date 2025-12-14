@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { DiscourseUser } from '../types';
-import { getDiscourseBaseUrl, isDemoFeed, isTestServerUrl } from './proxyConfig';
+import { getDiscourseBaseUrl, isDemoFeed } from './proxyConfig';
 
 // LocalStorage key for pending comments
 const PENDING_COMMENTS_KEY = 'news-widget-pending-comments';

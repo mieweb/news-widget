@@ -263,12 +263,13 @@ export const FeedCard: React.FC<FeedCardProps> = ({
       {renderMedia()}
 
       {/* Actions */}
-      <div className="card-actions">
+      <div className="card-actions" role="toolbar" aria-label="Post actions">
         {supportsLikes && (
           <button
             className={`action-button ${post.isLiked ? 'liked' : ''}`}
             onClick={() => onToggleLike(post.id)}
-            aria-label={post.isLiked ? 'Unlike' : 'Like'}
+            aria-label={`${post.isLiked ? 'Unlike' : 'Like'} post (${post.likes ?? 0} likes)`}
+            aria-pressed={post.isLiked}
           >
             {post.isLiked ? '❤️' : '🤍'} {post.likes ?? '–'}
           </button>
@@ -277,7 +278,8 @@ export const FeedCard: React.FC<FeedCardProps> = ({
           <button
             className="action-button"
             onClick={() => setShowComments(!showComments)}
-            aria-label="Comments"
+            aria-label={`View comments (${displayedCommentCount} comments)`}
+            aria-expanded={showComments}
           >
             💬 {post.commentCount === undefined ? '–' : displayedCommentCount}
           </button>

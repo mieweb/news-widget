@@ -248,7 +248,8 @@ export function useFeed(feedUrl: string) {
     fetchFeed();
   }, [fetchFeed]);
 
-  const toggleLike = useCallback((postId: string) => {
+  const toggleLike = useCallback(async (postId: string) => {
+    // Optimistically update UI
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
@@ -260,7 +261,29 @@ export function useFeed(feedUrl: string) {
           : post
       )
     );
-  }, []);
+
+    // For non-demo feeds, send to server
+    if (!isDemoFeed(feedUrl)) {
+      const post = posts.find(p => p.id === postId);
+      if (!post?.topicId) return;
+
+      try {
+        const baseUrl = getDiscourseBaseUrl(feedUrl);
+        const action = post.isLiked ? 'unlike' : 'like';
+        const response = await fetch(`${baseUrl}/posts/${post.topicId}/like`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action }),
+        });
+        
+        if (!response.ok) {
+          console.warn('Failed to sync like to server');
+        }
+      } catch (err) {
+        console.warn('Failed to sync like to server:', err);
+      }
+    }
+  }, [feedUrl, posts]);
 
   return { posts, loading, error, refetch: fetchFeed, toggleLike };
 }

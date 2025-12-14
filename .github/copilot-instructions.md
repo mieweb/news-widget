@@ -162,6 +162,66 @@ npm run lint     # Run ESLint
 - Only use `browser_close` when the user specifically requests it
 - Take snapshots to report state, but leave the browser running for manual inspection
 
+## E2E Testing with Playwright
+
+### 🧪 Test Writing Best Practices (Accessibility-First)
+- **Use ARIA roles and labels**: Never use class selectors (`.card-actions`, `.comment-item`). Always use accessibility-first selectors.
+- **Semantic selectors over CSS**: Use `page.getByRole('button', { name: /pattern/ })` instead of `page.locator('.action-button')`
+- **ARIA attributes in tests**: Target elements by their ARIA roles and labels:
+  - `page.getByRole('button', { name: 'Post comment' })`
+  - `page.getByRole('textbox', { name: 'Comment input field' })`
+  - `page.locator('[role="listitem"]')` for list items
+  - `page.locator('[role="region"]')` for regions
+- **Extract data from aria-label**: Parse counts and state from aria-label attributes rather than textContent:
+  ```typescript
+  const ariaLabel = await button.getAttribute('aria-label');
+  const match = ariaLabel?.match(/\((\d+) likes\)/);
+  const count = match ? parseInt(match[1]) : 0;
+  ```
+- **Check aria-pressed and aria-expanded**: Use state attributes for toggled elements:
+  ```typescript
+  const isPressed = await button.getAttribute('aria-pressed');
+  const isExpanded = await button.getAttribute('aria-expanded');
+  ```
+
+### 📝 Test Structure Examples
+```typescript
+// ✅ Good: Uses ARIA roles and labels
+test('should add and sync comment', async ({ page }) => {
+  const commentInput = page.getByRole('textbox', { name: 'Comment input field' });
+  await commentInput.fill('Test comment');
+  await page.getByRole('button', { name: 'Post comment' }).click();
+  
+  // Target by listitem role
+  await expect(page.locator('[role="listitem"]').last()).toContainText('Test comment');
+});
+
+// ❌ Bad: Uses class selectors (fragile)
+test('should add and sync comment', async ({ page }) => {
+  const commentInput = page.locator('.comment-input');
+  await commentInput.fill('Test comment');
+  await page.locator('.comment-submit').click();
+  
+  // Breaks if CSS class changes
+  await expect(page.locator('.comment-item').last()).toContainText('Test comment');
+});
+```
+
+### 🎯 Benefits of Accessibility-First Testing
+- **Tests survive CSS refactors**: Changes to `.card-actions` or class names don't break tests
+- **Screen reader validation**: Tests verify accessibility compliance automatically
+- **Better maintainability**: Intent is clear from role/label, not fragile CSS classes
+- **508 compliance**: Tests ensure accessibility standards are met
+- **User-focused**: Tests validate what users actually interact with (labels, roles)
+
+### 📋 Test Checklist
+- [ ] **No class selectors**: All selectors use roles, labels, or ARIA attributes
+- [ ] **Semantic roles**: Every interactive element has appropriate `role=` attribute
+- [ ] **Clear labels**: All buttons/inputs have meaningful `aria-label` attributes
+- [ ] **ARIA state**: Use `aria-pressed`, `aria-expanded`, `aria-live` where appropriate
+- [ ] **Accessibility verified**: Tests would work with screen readers
+- [ ] **No hardcoded text dependencies**: Use roles/labels, not textContent matching when possible
+
 ## Quick Reference
 
 ### 🪶 All Changes should be considered for Pull Request Philosophy
