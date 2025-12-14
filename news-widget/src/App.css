@@ -36,7 +36,13 @@ body {
   font-weight: 600;
 }
 
-.refresh-button {
+.header-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.refresh-button,
+.logout-button {
   background: none;
   border: none;
   font-size: 20px;
@@ -46,7 +52,8 @@ body {
   transition: background 0.2s;
 }
 
-.refresh-button:hover {
+.refresh-button:hover,
+.logout-button:hover {
   background: #efefef;
 }
 

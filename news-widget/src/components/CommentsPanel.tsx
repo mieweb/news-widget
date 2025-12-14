@@ -1,15 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { useComments } from '../hooks/useComments';
+import { useComments, type UseCommentsOptions } from '../hooks/useComments';
 import { Avatar } from './Avatar';
 import './CommentsPanel.css';
 
 interface CommentsPanelProps {
   postId: string;
   onClose: () => void;
+  /** Discourse topic ID for fetching real comments */
+  topicId?: number;
+  /** Base URL for the Discourse instance */
+  discourseBaseUrl?: string;
+  /** Callback when a comment is added (for updating counts) */
+  onCommentAdded?: () => void;
+  /** Whether user is authenticated with Discourse */
+  isAuthenticated?: boolean;
+  /** Function to post to Discourse */
+  postToDiscourse?: (topicId: number, content: string) => Promise<boolean>;
+  /** Function to open login */
+  onLogin?: () => void;
+  /** Function to recheck login status */
+  onCheckLogin?: () => void;
 }
 
-export const CommentsPanel: React.FC<CommentsPanelProps> = ({ postId, onClose }) => {
-  const { comments, loading, fetchComments, addComment } = useComments(postId);
+export const CommentsPanel: React.FC<CommentsPanelProps> = ({
+  postId,
+  onClose,
+  topicId,
+  discourseBaseUrl,
+  onCommentAdded,
+  isAuthenticated = false,
+  postToDiscourse,
+  onLogin,
+  onCheckLogin,
+}) => {
+  const options: UseCommentsOptions = {
+    topicId,
+    discourseBaseUrl,
+    onCommentAdded,
+    isAuthenticated,
+    postToDiscourse,
+  };
+  const { comments, loading, fetchComments, addComment, retryComment } = useComments(postId, options);
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,6 +72,10 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({ postId, onClose })
     return minutes > 0 ? `${minutes}m` : 'now';
   };
 
+  const handleRetry = async (commentId: string) => {
+    await retryComment(commentId);
+  };
+
   return (
     <div className="comments-panel">
       <div className="comments-header">
@@ -57,7 +92,10 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({ postId, onClose })
           <div className="comments-empty">No comments yet. Be the first!</div>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} className="comment-item">
+            <div
+              key={comment.id}
+              className={`comment-item ${comment.status === 'pending' ? 'comment-pending' : ''}`}
+            >
               <Avatar
                 name={comment.author.name}
                 src={comment.author.avatar}
@@ -68,7 +106,32 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({ postId, onClose })
                 <div className="comment-text">
                   <strong>{comment.author.name}</strong> {comment.content}
                 </div>
-                <span className="comment-time">{formatTimestamp(comment.timestamp)}</span>
+                <div className="comment-meta">
+                  <span className="comment-time">{formatTimestamp(comment.timestamp)}</span>
+                  {comment.status === 'pending' && (
+                    <span className="comment-status pending">
+                      ⏳ Pending
+                      {isAuthenticated && (
+                        <button
+                          type="button"
+                          className="retry-button"
+                          onClick={() => handleRetry(comment.id)}
+                        >
+                          Retry
+                        </button>
+                      )}
+                      {!isAuthenticated && onLogin && (
+                        <button
+                          type="button"
+                          className="login-to-sync-button"
+                          onClick={onLogin}
+                        >
+                          Login to sync
+                        </button>
+                      )}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           ))
@@ -80,7 +143,7 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({ postId, onClose })
           type="text"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Add a comment..."
+          placeholder={isAuthenticated ? "Add a comment..." : "Add a comment (pending until login)..."}
           className="comment-input"
           disabled={isSubmitting}
         />
@@ -92,6 +155,20 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({ postId, onClose })
           Post
         </button>
       </form>
+      
+      {!isAuthenticated && onLogin && (
+        <div className="login-prompt">
+          <button type="button" className="login-button" onClick={onLogin}>
+            Login to Discourse
+          </button>
+          {onCheckLogin && (
+            <button type="button" className="check-login-button" onClick={onCheckLogin}>
+              Check login
+            </button>
+          )}
+          <span className="login-hint">to sync your comments</span>
+        </div>
+      )}
     </div>
   );
 };

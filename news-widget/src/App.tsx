@@ -1,9 +1,25 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Feed, FullscreenViewer, LandingPage } from './components';
-import { useFeed, useRouter } from './hooks';
+import { useFeed, useRouter, useDiscourseAuth, getDiscourseBaseUrl } from './hooks';
 import { getFeedById, type FeedConfig } from './data/feedRegistry';
 import type { Post } from './types';
 import './App.css';
+
+// Default Discourse URL for auth (used when feed supports comments)
+const DEFAULT_DISCOURSE_URL = 'https://community.enterprise.health';
+
+/**
+ * Extract base URL from a feed URL for Discourse API calls
+ * Uses proxy paths in development
+ */
+function getFeedBaseUrl(feedUrl: string): string | undefined {
+  try {
+    // Use the centralized proxy config for proper URL handling
+    return getDiscourseBaseUrl(feedUrl);
+  } catch {
+    return undefined;
+  }
+}
 
 interface FeedViewProps {
   feed: FeedConfig;
@@ -16,6 +32,16 @@ interface FeedViewProps {
 function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: FeedViewProps) {
   const { posts, loading, error, refetch, toggleLike } = useFeed(feed.url);
   const [fullscreenPost, setFullscreenPost] = useState<Post | null>(null);
+  
+  // Compute feed base URL for Discourse API
+  const feedBaseUrl = useMemo(() => getFeedBaseUrl(feed.url), [feed.url]);
+  
+  // Discourse auth
+  const discourseUrl = feedBaseUrl || DEFAULT_DISCOURSE_URL;
+  const { isAuthenticated, postComment, openLogin, checkSession, logout } = useDiscourseAuth(discourseUrl);
+  
+  // Check if this is the test server (for showing logout button)
+  const isTestServer = feedBaseUrl === '/api/test';
 
   const handleOpenFullscreen = useCallback((post: Post) => {
     setFullscreenPost(post);
@@ -64,9 +90,16 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
           ←
         </button>
         <h1>📰 {feed.name}</h1>
-        <button onClick={refetch} className="refresh-button" aria-label="Refresh feed">
-          🔄
-        </button>
+        <div className="header-actions">
+          {isTestServer && isAuthenticated && (
+            <button onClick={logout} className="logout-button" aria-label="Logout">
+              🚪
+            </button>
+          )}
+          <button onClick={refetch} className="refresh-button" aria-label="Refresh feed">
+            🔄
+          </button>
+        </div>
       </header>
 
       <main className="app-main">
@@ -76,6 +109,12 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
           onOpenFullscreen={handleOpenFullscreen}
           scrollToPostId={postId}
           onScrolledToPost={onClearPostId}
+          capabilities={feed.capabilities}
+          feedBaseUrl={feedBaseUrl}
+          isAuthenticated={isAuthenticated}
+          postToDiscourse={postComment}
+          onLogin={openLogin}
+          onCheckLogin={checkSession}
         />
       </main>
 
@@ -85,6 +124,12 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
           initialIndex={fullscreenIndex}
           onClose={handleCloseFullscreen}
           onToggleLike={toggleLike}
+          capabilities={feed.capabilities}
+          feedBaseUrl={feedBaseUrl}
+          isAuthenticated={isAuthenticated}
+          postToDiscourse={postComment}
+          onLogin={openLogin}
+          onCheckLogin={checkSession}
         />
       )}
     </div>

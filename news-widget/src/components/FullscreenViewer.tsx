@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
-import type { Post } from '../types';
+import type { Post, FeedCapabilities } from '../types';
 import { FeedCard } from './FeedCard';
 import './FullscreenViewer.css';
 
@@ -9,6 +9,18 @@ interface FullscreenViewerProps {
   initialIndex: number;
   onClose: () => void;
   onToggleLike: (postId: string) => void;
+  /** Feed capabilities - controls which engagement features are shown */
+  capabilities?: FeedCapabilities;
+  /** Base URL for the feed source (e.g., Discourse instance) */
+  feedBaseUrl?: string;
+  /** Whether user is authenticated with Discourse */
+  isAuthenticated?: boolean;
+  /** Function to post comment to Discourse */
+  postToDiscourse?: (topicId: number, content: string) => Promise<boolean>;
+  /** Function to open login */
+  onLogin?: () => void;
+  /** Function to recheck login status */
+  onCheckLogin?: () => void;
 }
 
 export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
@@ -16,6 +28,12 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
   initialIndex,
   onClose,
   onToggleLike,
+  capabilities,
+  feedBaseUrl,
+  isAuthenticated,
+  postToDiscourse,
+  onLogin,
+  onCheckLogin,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
@@ -101,6 +119,12 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
             post={currentPost}
             isActive={true}
             onToggleLike={onToggleLike}
+            capabilities={capabilities}
+            feedBaseUrl={feedBaseUrl}
+            isAuthenticated={isAuthenticated}
+            postToDiscourse={postToDiscourse}
+            onLogin={onLogin}
+            onCheckLogin={onCheckLogin}
           />
         </div>
 

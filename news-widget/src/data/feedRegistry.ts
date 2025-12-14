@@ -1,4 +1,5 @@
-import { SAMPLE_FEED_URL } from './sampleFeed';
+import { SAMPLE_FEED_NO_COMMENTS_URL } from './sampleFeed';
+import type { FeedCapabilities } from '../types';
 
 export interface FeedConfig {
   id: string;
@@ -6,6 +7,8 @@ export interface FeedConfig {
   description: string;
   url: string;
   emoji: string;
+  /** Feed capabilities - defaults to { supportsLikes: false, supportsComments: false } if not specified */
+  capabilities?: FeedCapabilities;
 }
 
 export interface FeedSection {
@@ -27,6 +30,7 @@ export const FEED_SECTIONS: FeedSection[] = [
         description: 'Product features and announcements',
         url: 'https://community.enterprise.health/c/features/5.rss',
         emoji: '✨',
+        capabilities: { supportsLikes: true, supportsComments: true },
       },
       {
         id: 'testing',
@@ -34,6 +38,7 @@ export const FEED_SECTIONS: FeedSection[] = [
         description: 'Testing and QA discussions',
         url: 'https://community.enterprise.health/c/testing/11.rss',
         emoji: '🧪',
+        capabilities: { supportsLikes: true, supportsComments: true },
       },
       {
         id: 'public',
@@ -41,18 +46,29 @@ export const FEED_SECTIONS: FeedSection[] = [
         description: 'Public community content',
         url: 'https://community.enterprise.health/c/public-category/12.rss',
         emoji: '🌐',
+        capabilities: { supportsLikes: true, supportsComments: true },
       },
     ],
   },
   {
-    title: 'Made Up Feed',
+    title: 'Demo Feeds',
     feeds: [
+      {
+        id: 'test-server',
+        name: 'Test Server',
+        description: 'Local Discourse-like test server',
+        // Uses embedded Vite plugin - no separate server needed
+        url: 'http://localhost:5173/api/test/c/testing/1.rss',
+        emoji: '🧪',
+        capabilities: { supportsLikes: true, supportsComments: true },
+      },
       {
         id: 'sample',
         name: 'Sample Feed',
-        description: 'Demo content for local testing',
-        url: SAMPLE_FEED_URL,
+        description: 'Demo content without engagement',
+        url: SAMPLE_FEED_NO_COMMENTS_URL,
         emoji: '🎭',
+        // No capabilities - defaults to no likes/comments
       },
     ],
   },

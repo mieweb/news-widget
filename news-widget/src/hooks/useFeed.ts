@@ -1,32 +1,49 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Post, MediaType } from '../types';
-import { SAMPLE_FEED_URL, getSamplePosts } from '../data/sampleFeed';
-
-// URLs matching this pattern are proxied through Vite dev server
-// In production, these should have Access-Control-Allow-Origin set
-const PROXIED_HOST = 'community.enterprise.health';
+import { SAMPLE_FEED_URL, SAMPLE_FEED_NO_COMMENTS_URL, getSamplePosts, getMockTopicData } from '../data/sampleFeed';
+import { getProxiedUrl, shouldUseProxy, getDiscourseBaseUrl, isDemoFeed } from './proxyConfig';
 
 /**
  * Check if a URL will be proxied in development
  */
 export function isProxiedUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    return parsed.host === PROXIED_HOST;
-  } catch {
-    return false;
-  }
+  return shouldUseProxy(url);
 }
 
 /**
- * Convert a feed URL to use the dev proxy if needed
+ * Get the Discourse API URL for a topic
  */
-function getProxiedUrl(url: string): string {
-  if (import.meta.env.DEV && isProxiedUrl(url)) {
-    const parsed = new URL(url);
-    return `/api/rss${parsed.pathname}${parsed.search}`;
+function getDiscourseTopicUrl(topicId: number, feedUrl: string): string {
+  // Skip for demo feeds
+  if (isDemoFeed(feedUrl)) {
+    return '';
   }
-  return url;
+  
+  const baseUrl = getDiscourseBaseUrl(feedUrl);
+  return `${baseUrl}/t/${topicId}.json`;
+}
+
+/**
+ * Extract topic ID from Discourse RSS guid or link
+ * guid format: "community.enterprise.health-topic-{id}"
+ * link format: "https://community.enterprise.health/t/{slug}/{id}"
+ */
+function extractTopicId(guid: string, link?: string): number | undefined {
+  // Try to extract from guid first
+  const guidMatch = guid.match(/-topic-(\d+)$/);
+  if (guidMatch) {
+    return parseInt(guidMatch[1], 10);
+  }
+  
+  // Fallback to link
+  if (link) {
+    const linkMatch = link.match(/\/t\/[^/]+\/(\d+)/);
+    if (linkMatch) {
+      return parseInt(linkMatch[1], 10);
+    }
+  }
+  
+  return undefined;
 }
 
 function extractMediaFromContent(content: string): { type: MediaType; url?: string; thumbnail?: string } {
@@ -92,9 +109,11 @@ function parseRSS(xmlString: string): Post[] {
 
     const media = extractMediaFromContent(content);
     const caption = stripHtml(description).slice(0, 200);
+    const topicId = extractTopicId(guid, link);
 
     posts.push({
       id: guid,
+      topicId,
       author: {
         name: creator,
       },
@@ -104,13 +123,83 @@ function parseRSS(xmlString: string): Post[] {
       thumbnailUrl: media.thumbnail,
       link,
       timestamp: pubDate ? new Date(pubDate) : new Date(),
-      likes: Math.floor(Math.random() * 100), // Mock data
-      commentCount: Math.floor(Math.random() * 20), // Mock data
+      // likes and commentCount will be fetched from Discourse API
+      likes: undefined,
+      commentCount: undefined,
       isLiked: false,
     });
   });
 
   return posts;
+}
+
+/**
+ * Discourse topic API response (partial)
+ */
+interface DiscourseTopicResponse {
+  id: number;
+  like_count: number;
+  posts_count: number;
+  reply_count: number;
+}
+
+/**
+ * Fetch engagement data for a single topic from Discourse API
+ */
+async function fetchTopicMetadata(
+  topicId: number,
+  feedUrl: string
+): Promise<{ likes: number; commentCount: number } | null> {
+  // Use mock data for demo feeds
+  const mockData = getMockTopicData(topicId);
+  if (mockData) {
+    return { likes: mockData.likes, commentCount: mockData.commentCount };
+  }
+
+  const url = getDiscourseTopicUrl(topicId, feedUrl);
+  if (!url) return null;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    
+    const data: DiscourseTopicResponse = await response.json();
+    return {
+      likes: data.like_count,
+      // posts_count includes the original post, so subtract 1 for reply count
+      // or use reply_count directly
+      commentCount: data.reply_count,
+    };
+  } catch (err) {
+    console.warn(`Failed to fetch topic ${topicId} metadata:`, err);
+    return null;
+  }
+}
+
+/**
+ * Fetch engagement data for all posts in parallel
+ */
+async function enrichPostsWithMetadata(
+  posts: Post[],
+  feedUrl: string
+): Promise<Post[]> {
+  const metadataPromises = posts.map(async (post) => {
+    if (post.topicId === undefined) {
+      return post;
+    }
+    
+    const metadata = await fetchTopicMetadata(post.topicId, feedUrl);
+    if (metadata) {
+      return {
+        ...post,
+        likes: metadata.likes,
+        commentCount: metadata.commentCount,
+      };
+    }
+    return post;
+  });
+
+  return Promise.all(metadataPromises);
 }
 
 export function useFeed(feedUrl: string) {
@@ -122,9 +211,13 @@ export function useFeed(feedUrl: string) {
     setLoading(true);
     setError(null);
 
-    // Handle sample feed for local testing
-    if (feedUrl === SAMPLE_FEED_URL) {
-      setPosts(getSamplePosts());
+    // Handle sample feeds for local testing
+    const isSampleFeed = feedUrl === SAMPLE_FEED_URL || feedUrl === SAMPLE_FEED_NO_COMMENTS_URL;
+    if (isSampleFeed) {
+      const samplePosts = getSamplePosts();
+      // Enrich sample posts with mock topic data
+      const enrichedPosts = await enrichPostsWithMetadata(samplePosts, feedUrl);
+      setPosts(enrichedPosts);
       setLoading(false);
       return;
     }
@@ -137,11 +230,18 @@ export function useFeed(feedUrl: string) {
       }
       const xmlText = await response.text();
       const parsedPosts = parseRSS(xmlText);
+      
+      // Set posts immediately so UI shows content
       setPosts(parsedPosts);
+      setLoading(false);
+      
+      // Fetch engagement data in background
+      enrichPostsWithMetadata(parsedPosts, feedUrl).then((enrichedPosts) => {
+        setPosts(enrichedPosts);
+      });
     } catch (err) {
       console.error('Failed to fetch feed:', err);
       setError(err instanceof Error ? err.message : 'Failed to load feed');
-    } finally {
       setLoading(false);
     }
   }, [feedUrl]);
@@ -157,7 +257,7 @@ export function useFeed(feedUrl: string) {
           ? {
               ...post,
               isLiked: !post.isLiked,
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
+              likes: (post.likes ?? 0) + (post.isLiked ? -1 : 1),
             }
           : post
       )

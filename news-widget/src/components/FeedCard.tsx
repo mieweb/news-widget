@@ -1,16 +1,35 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
-import type { Post } from '../types';
+import type { Post, FeedCapabilities } from '../types';
 import { useVisibility } from '../hooks/useVisibility';
+import { getPendingCommentCount } from '../hooks';
 import { CommentsPanel } from './CommentsPanel';
 import { Avatar } from './Avatar';
 import './FeedCard.css';
+
+/** Default capabilities when none are specified */
+const DEFAULT_CAPABILITIES: FeedCapabilities = {
+  supportsLikes: false,
+  supportsComments: false,
+};
 
 interface FeedCardProps {
   post: Post;
   isActive?: boolean;
   onToggleLike: (postId: string) => void;
   onOpenFullscreen?: (post: Post) => void;
+  /** Feed capabilities - controls which engagement features are shown */
+  capabilities?: FeedCapabilities;
+  /** Base URL for the feed source (e.g., Discourse instance) */
+  feedBaseUrl?: string;
+  /** Whether user is authenticated with Discourse */
+  isAuthenticated?: boolean;
+  /** Function to post comment to Discourse */
+  postToDiscourse?: (topicId: number, content: string) => Promise<boolean>;
+  /** Function to open login */
+  onLogin?: () => void;
+  /** Function to recheck login status */
+  onCheckLogin?: () => void;
 }
 
 export const FeedCard: React.FC<FeedCardProps> = ({
@@ -18,15 +37,33 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   isActive = true,
   onToggleLike,
   onOpenFullscreen,
+  capabilities = DEFAULT_CAPABILITIES,
+  feedBaseUrl,
+  isAuthenticated,
+  postToDiscourse,
+  onLogin,
+  onCheckLogin,
 }) => {
+  const { supportsLikes, supportsComments } = capabilities;
   const [cardRef, isVisible] = useVisibility<HTMLDivElement>({ threshold: 0.6 });
   const [isMuted, setIsMuted] = useState(true);
   const [showComments, setShowComments] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isCaptionExpanded, setIsCaptionExpanded] = useState(false);
   const [isCaptionTruncated, setIsCaptionTruncated] = useState(false);
+  // Initialize with the count of pending comments for this topic
+  const [localCommentCount, setLocalCommentCount] = useState(() =>
+    post.topicId ? getPendingCommentCount(post.topicId) : 0
+  );
   const captionRef = useRef<HTMLElement>(null);
   const lastTapRef = useRef<number>(0);
+
+  // Displayed comment count = server count + locally added comments
+  const displayedCommentCount = (post.commentCount ?? 0) + localCommentCount;
+
+  const handleCommentAdded = useCallback(() => {
+    setLocalCommentCount(prev => prev + 1);
+  }, []);
 
   const shouldPlay = isActive && isVisible && (post.mediaType === 'video' || post.mediaType === 'youtube');
 
@@ -68,7 +105,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
 
   const handleDoubleTap = useCallback(() => {
     const now = Date.now();
-    if (now - lastTapRef.current < 300) {
+    if (now - lastTapRef.current < 300 && supportsLikes) {
       onToggleLike(post.id);
       // Show heart animation
       const heart = document.createElement('div');
@@ -78,7 +115,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
       setTimeout(() => heart.remove(), 1000);
     }
     lastTapRef.current = now;
-  }, [onToggleLike, post.id, cardRef]);
+  }, [onToggleLike, post.id, cardRef, supportsLikes]);
 
   const handleShare = useCallback(async () => {
     const shareData = {
@@ -227,20 +264,24 @@ export const FeedCard: React.FC<FeedCardProps> = ({
 
       {/* Actions */}
       <div className="card-actions">
-        <button
-          className={`action-button ${post.isLiked ? 'liked' : ''}`}
-          onClick={() => onToggleLike(post.id)}
-          aria-label={post.isLiked ? 'Unlike' : 'Like'}
-        >
-          {post.isLiked ? '❤️' : '🤍'} {post.likes}
-        </button>
-        <button
-          className="action-button"
-          onClick={() => setShowComments(!showComments)}
-          aria-label="Comments"
-        >
-          💬 {post.commentCount}
-        </button>
+        {supportsLikes && (
+          <button
+            className={`action-button ${post.isLiked ? 'liked' : ''}`}
+            onClick={() => onToggleLike(post.id)}
+            aria-label={post.isLiked ? 'Unlike' : 'Like'}
+          >
+            {post.isLiked ? '❤️' : '🤍'} {post.likes ?? '–'}
+          </button>
+        )}
+        {supportsComments && (
+          <button
+            className="action-button"
+            onClick={() => setShowComments(!showComments)}
+            aria-label="Comments"
+          >
+            💬 {post.commentCount === undefined ? '–' : displayedCommentCount}
+          </button>
+        )}
         <button className="action-button" onClick={handleShare} aria-label="Share">
           📤 Share
         </button>
@@ -275,8 +316,18 @@ export const FeedCard: React.FC<FeedCardProps> = ({
       )}
 
       {/* Comments Panel */}
-      {showComments && (
-        <CommentsPanel postId={post.id} onClose={() => setShowComments(false)} />
+      {supportsComments && showComments && (
+        <CommentsPanel
+          postId={post.id}
+          onClose={() => setShowComments(false)}
+          topicId={post.topicId}
+          discourseBaseUrl={feedBaseUrl}
+          onCommentAdded={handleCommentAdded}
+          isAuthenticated={isAuthenticated}
+          postToDiscourse={postToDiscourse}
+          onLogin={onLogin}
+          onCheckLogin={onCheckLogin}
+        />
       )}
     </div>
   );

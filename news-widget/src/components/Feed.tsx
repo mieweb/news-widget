@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-import type { Post } from '../types';
+import type { Post, FeedCapabilities } from '../types';
 import { FeedCard } from './FeedCard';
 import './Feed.css';
 
@@ -10,6 +10,18 @@ interface FeedProps {
   scrollToPostId?: string | null;
   onScrolledToPost?: () => void;
   onNavigateToPost?: (postId: string) => void;
+  /** Feed capabilities - controls which engagement features are shown */
+  capabilities?: FeedCapabilities;
+  /** Base URL for the feed source (e.g., Discourse instance) */
+  feedBaseUrl?: string;
+  /** Whether user is authenticated with Discourse */
+  isAuthenticated?: boolean;
+  /** Function to post comment to Discourse */
+  postToDiscourse?: (topicId: number, content: string) => Promise<boolean>;
+  /** Function to open login */
+  onLogin?: () => void;
+  /** Function to recheck login status */
+  onCheckLogin?: () => void;
 }
 
 export const Feed: React.FC<FeedProps> = ({
@@ -19,6 +31,12 @@ export const Feed: React.FC<FeedProps> = ({
   scrollToPostId,
   onScrolledToPost,
   onNavigateToPost,
+  capabilities,
+  feedBaseUrl,
+  isAuthenticated,
+  postToDiscourse,
+  onLogin,
+  onCheckLogin,
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -105,6 +123,12 @@ export const Feed: React.FC<FeedProps> = ({
               isActive={index === activeIndex}
               onToggleLike={onToggleLike}
               onOpenFullscreen={onOpenFullscreen}
+              capabilities={capabilities}
+              feedBaseUrl={feedBaseUrl}
+              isAuthenticated={isAuthenticated}
+              postToDiscourse={postToDiscourse}
+              onLogin={onLogin}
+              onCheckLogin={onCheckLogin}
             />
           </div>
         ))}
