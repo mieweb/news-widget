@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Post, MediaType } from '../types';
-import { SAMPLE_FEED_URL, SAMPLE_FEED_NO_COMMENTS_URL, getSamplePosts, getMockTopicData } from '../data/sampleFeed';
+import { SAMPLE_FEED_URL, SAMPLE_FEED_NO_COMMENTS_URL, getSamplePosts } from '../data/sampleFeed';
 import { getProxiedUrl, shouldUseProxy, getDiscourseBaseUrl, isDemoFeed } from './proxyConfig';
 
 /**
@@ -150,10 +150,9 @@ async function fetchTopicMetadata(
   topicId: number,
   feedUrl: string
 ): Promise<{ likes: number; commentCount: number } | null> {
-  // Use mock data for demo feeds
-  const mockData = getMockTopicData(topicId);
-  if (mockData) {
-    return { likes: mockData.likes, commentCount: mockData.commentCount };
+  // Demo feeds already have likes/commentCount in the post data, skip fetching
+  if (isDemoFeed(feedUrl)) {
+    return null;
   }
 
   const url = getDiscourseTopicUrl(topicId, feedUrl);
@@ -215,9 +214,8 @@ export function useFeed(feedUrl: string) {
     const isSampleFeed = feedUrl === SAMPLE_FEED_URL || feedUrl === SAMPLE_FEED_NO_COMMENTS_URL;
     if (isSampleFeed) {
       const samplePosts = getSamplePosts();
-      // Enrich sample posts with mock topic data
-      const enrichedPosts = await enrichPostsWithMetadata(samplePosts, feedUrl);
-      setPosts(enrichedPosts);
+      // Sample posts already have likes/commentCount, no need to enrich
+      setPosts(samplePosts);
       setLoading(false);
       return;
     }
