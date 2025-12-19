@@ -13,8 +13,6 @@ The main documentation is located in the **[news-widget/](news-widget/)** direct
 - 📦 [Installation & Embedding Guide](news-widget/README.md#-embedding-the-widget)
 - 🎨 [Customizing Colors & Themes](news-widget/README.md#-customizing-colors--styles)
 - 📚 [Usage Examples](news-widget/EXAMPLES.md)
-- 🚀 [Publishing Guide](news-widget/PUBLISHING.md)
-- ⚙️ [GitHub Actions Workflows](.github/WORKFLOWS.md)
 - 🧪 [Development Setup](news-widget/README.md#-development)
 - 📝 [Working backward charter](https://docs.google.com/document/d/1fFmoF4miD294x8icvJu7XiMFwB1GOunwSkJ7Uo1ShWM/edit?tab=t.0
 )
@@ -27,11 +25,9 @@ news-widget/
 │   ├── src/             # React components, hooks, and types
 │   ├── tests/           # Playwright E2E tests
 │   ├── README.md        # 📖 Main documentation
-│   ├── EXAMPLES.md      # Usage examples
-│   └── PUBLISHING.md    # Publishing guide
+│   └── EXAMPLES.md      # Usage examples
 ├── .github/
-│   ├── workflows/       # GitHub Actions (automated NPM publish)
-│   └── WORKFLOWS.md     # Workflow documentation
+│   └── workflows/       # GitHub Actions (automated NPM publish)
 └── POC.md              # Proof of concept notes
 ```
 

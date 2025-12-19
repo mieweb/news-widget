@@ -437,18 +437,18 @@ Create a GitHub Release and the package is automatically published via GitHub Ac
 
 ```mermaid
 graph LR
-    A[Update Version] --> B[Commit & Push]
-    B --> C[Create GitHub Release]
-    C --> D{GitHub Actions}
-    D --> E[Run Tests]
-    D --> F[Run Linter]
-    D --> G[Build Library]
-    E --> H{All Pass?}
-    F --> H
-    G --> H
-    H -->|Yes| I[Publish to NPM]
-    H -->|No| J[❌ Failed]
-    I --> K[✅ Published]
+    updateVersion[Update Version] --> commitPush[Commit & Push]
+    commitPush --> createRelease[Create GitHub Release]
+    createRelease --> githubActions{GitHub Actions}
+    githubActions --> runTests[Run Tests]
+    githubActions --> runLinter[Run Linter]
+    githubActions --> buildLibrary[Build Library]
+    runTests --> checkPass{All Pass?}
+    runLinter --> checkPass
+    buildLibrary --> checkPass
+    checkPass -->|Yes| publishNPM[Publish to NPM]
+    checkPass -->|No| failed[❌ Failed]
+    publishNPM --> published[✅ Published]
 ```
 
 **Steps**:
@@ -470,9 +470,7 @@ npm publish --access public
 ```
 
 **Resources**:
-- 📚 [PUBLISHING.md](PUBLISHING.md) - Detailed publishing guide
 - 🔧 [EXAMPLES.md](EXAMPLES.md) - Usage examples
-- ⚙️ [../.github/WORKFLOWS.md](../.github/WORKFLOWS.md) - GitHub Actions setup
 
 ### Code Quality
 
