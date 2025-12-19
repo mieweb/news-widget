@@ -252,6 +252,27 @@ export function useFeed(feedUrl: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Ensure media URLs are absolute and proxied in dev as needed
+  const normalizeMediaUrl = useCallback((url?: string): string | undefined => {
+    if (!url) return url;
+    try {
+      // Relative path from RSS (e.g., /uploads/...)
+      if (url.startsWith('/')) {
+        const base = getDiscourseBaseUrl(feedUrl);
+        return `${base}${url}`;
+      }
+
+      // Absolute URL that should be proxied in dev
+      if (import.meta.env.DEV && shouldUseProxy(url)) {
+        return getProxiedUrl(url);
+      }
+
+      return url;
+    } catch {
+      return url;
+    }
+  }, [feedUrl]);
+
   const fetchFeed = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -274,13 +295,20 @@ export function useFeed(feedUrl: string) {
       }
       const xmlText = await response.text();
       const parsedPosts = parseRSS(xmlText);
-      
+
+      // Normalize media URLs to ensure they resolve in dev/prod
+      const normalizedPosts = parsedPosts.map((p) => ({
+        ...p,
+        mediaUrl: normalizeMediaUrl(p.mediaUrl),
+        thumbnailUrl: normalizeMediaUrl(p.thumbnailUrl),
+      }));
+
       // Set posts immediately so UI shows content
-      setPosts(parsedPosts);
+      setPosts(normalizedPosts);
       setLoading(false);
       
       // Fetch engagement data in background
-      enrichPostsWithMetadata(parsedPosts, feedUrl).then((enrichedPosts) => {
+      enrichPostsWithMetadata(normalizedPosts, feedUrl).then((enrichedPosts) => {
         setPosts(enrichedPosts);
       });
     } catch (err) {
@@ -288,7 +316,7 @@ export function useFeed(feedUrl: string) {
       setError(err instanceof Error ? err.message : 'Failed to load feed');
       setLoading(false);
     }
-  }, [feedUrl]);
+  }, [feedUrl, normalizeMediaUrl]);
 
   useEffect(() => {
     fetchFeed();
