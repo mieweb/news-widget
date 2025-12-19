@@ -2,6 +2,8 @@
 
 An embeddable Instagram-style news feed widget with video playback, swipe gestures, and real-time comments.
 
+[Video Demo of News Feed Widget](https://youtube.com/shorts/4_813Qfi_6o?feature=share)
+
 ## 📖 Documentation
 
 The main documentation is located in the **[news-widget/](news-widget/)** directory.
