@@ -22,10 +22,13 @@ export function getSamplePosts(): Post[] {
     {
       id: 'demo-1',
       topicId: 1001,
+      title: 'Introducing React 19',
       author: {
         name: 'React Team',
+        avatar: 'https://avatars.githubusercontent.com/u/6412038?s=96&v=4',
+        title: 'Core Maintainers',
       },
-      caption: 'Introducing React 19 - New features and improvements for building modern web apps!',
+      caption: 'New features and improvements for building modern web apps!',
       mediaType: 'youtube',
       mediaUrl: 'https://www.youtube.com/watch?v=T8TZQ6k4SLE',
       thumbnailUrl: 'https://img.youtube.com/vi/T8TZQ6k4SLE/hqdefault.jpg',
@@ -38,8 +41,10 @@ export function getSamplePosts(): Post[] {
     {
       id: 'demo-2',
       topicId: 1002,
+      title: 'Beautiful Sunset Photography',
       author: {
         name: 'Tech News',
+        title: 'Photography Editor',
       },
       caption: 'Beautiful sunset captured on camera 🌅',
       mediaType: 'none', // Text-only to avoid external image dependency
@@ -51,10 +56,12 @@ export function getSamplePosts(): Post[] {
     {
       id: 'demo-3',
       topicId: 1003,
+      title: 'Big Buck Bunny Demo',
       author: {
         name: 'Video Creator',
+        title: 'Content Producer',
       },
-      caption: 'Big Buck Bunny - Open source animated short film demo',
+      caption: 'Open source animated short film demo',
       mediaType: 'youtube', // Using YouTube instead of external MP4 for test reliability
       mediaUrl: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
       timestamp: new Date(Date.now() - 7200000),
@@ -65,10 +72,12 @@ export function getSamplePosts(): Post[] {
     {
       id: 'demo-4',
       topicId: 1004,
+      title: 'Mountain Landscape Photography',
       author: {
         name: 'Nature Photos',
+        title: 'Outdoor Photographer',
       },
-      caption: 'Mountain landscape photography - Imagine beautiful snow-capped peaks 🏔️',
+      caption: 'Imagine beautiful snow-capped peaks 🏔️',
       mediaType: 'none', // Text-only to avoid external image dependency
       timestamp: new Date(Date.now() - 10800000),
       likes: 256,
@@ -78,10 +87,12 @@ export function getSamplePosts(): Post[] {
     {
       id: 'demo-5',
       topicId: 1005,
+      title: 'TypeScript Tips and Tricks',
       author: {
         name: 'Code Tips',
+        title: 'Senior Developer',
       },
-      caption: 'TypeScript tips and tricks for better code quality ✨',
+      caption: 'Better code quality with TypeScript ✨',
       mediaType: 'none', // Text-only to avoid external image dependency
       link: 'https://www.typescriptlang.org/docs/',
       timestamp: new Date(Date.now() - 14400000),
@@ -92,10 +103,12 @@ export function getSamplePosts(): Post[] {
     {
       id: 'demo-6',
       topicId: 1006,
+      title: 'Testing Long Caption Truncation',
       author: {
         name: 'Long Post Author',
+        title: 'QA Engineer',
       },
-      caption: 'This is a very long caption that should be truncated by CSS because it contains a lot of text. We want to test the expand/collapse functionality to make sure the "...more" button appears when content is truncated. The button should allow users to expand the caption to read the full text, and then collapse it again if needed. This feature is important for improving the user experience by keeping the feed cards compact while still allowing access to full content.',
+      caption: 'This is a very long caption that should be truncated by CSS because it contains a lot of text. We want to test the expand/collapse functionality to make sure the "...more" button appears when content is truncated. The button should allow users to expand the caption to read the full text, and then collapse it again if needed.',
       mediaType: 'none', // Text-only to avoid external image dependency
       timestamp: new Date(Date.now() - 18000000),
       likes: 567,
@@ -105,10 +118,12 @@ export function getSamplePosts(): Post[] {
     {
       id: 'demo-7',
       topicId: 1007,
+      title: 'Text Only Post Example',
       author: {
         name: 'Text Only Post',
+        title: 'Community Member',
       },
-      caption: 'This is a text-only post without any media attached. It should display the caption in the media container area with a nice gradient background. When the text is long enough to exceed the line clamp limit, we should see the "...more" button appear to allow users to expand and read the full content. This type of post is common for announcements, updates, or discussion topics that do not require visual media but still have important textual information to share with the community.',
+      caption: 'This is a text-only post without any media attached. It should display the caption in the media container area with a nice gradient background. When the text is long enough to exceed the line clamp limit, we should see the "...more" button appear.',
       mediaType: 'none',
       timestamp: new Date(Date.now() - 21600000),
       likes: 234,

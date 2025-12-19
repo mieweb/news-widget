@@ -185,20 +185,32 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
         return (
           <div className="media-container media-caption" onClick={handleDoubleTap}>
             <div className={`caption-content ${isCaptionExpanded ? 'expanded' : ''}`}>
-              <strong>{post.author.name}</strong>
-              <p ref={captionRef as React.RefObject<HTMLParagraphElement>}>{post.caption}</p>
-              {(isCaptionTruncated || isCaptionExpanded) && (
-                <button
-                  className="caption-toggle"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsCaptionExpanded(!isCaptionExpanded);
-                  }}
-                  aria-label={isCaptionExpanded ? 'Show less' : 'Show more'}
-                >
-                  {isCaptionExpanded ? 'less' : '...more'}
-                </button>
-              )}
+              <Avatar
+                name={post.author.name}
+                src={post.author.avatar}
+                size="small"
+                className="caption-avatar"
+              />
+              <div className="caption-text-wrapper">
+                <div className="caption-author-line">
+                  <strong className="author-name">{post.author.name}</strong>
+                  {post.author.title && <span className="author-title">{post.author.title}</span>}
+                  <span className="post-time">{formatTimestamp(post.timestamp)}</span>
+                </div>
+                <p ref={captionRef as React.RefObject<HTMLParagraphElement>}>{post.caption}</p>
+                {(isCaptionTruncated || isCaptionExpanded) && (
+                  <button
+                    className="caption-toggle"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsCaptionExpanded(!isCaptionExpanded);
+                    }}
+                    aria-label={isCaptionExpanded ? 'Show less' : 'Show more'}
+                  >
+                    {isCaptionExpanded ? 'less' : '...more'}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -247,18 +259,9 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
       data-index={feedIndex}
       aria-label={`Post ${feedIndex + 1} of ${feedLength} by ${post.author.name}`}
     >
-      {/* Header */}
-      <div className="card-header">
-        <Avatar
-          name={post.author.name}
-          src={post.author.avatar}
-          size="medium"
-          className="author-avatar"
-        />
-        <div className="author-info">
-          <span className="author-name">{post.author.name}</span>
-          <span className="post-time">{formatTimestamp(post.timestamp)}</span>
-        </div>
+      {/* Header - Post Title */}
+      <header className="card-header">
+        <h2 className="post-title">{post.title || post.caption}</h2>
         {onOpenFullscreen && (
           <button
             className="fullscreen-button"
@@ -268,7 +271,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
             ⛶
           </button>
         )}
-      </div>
+      </header>
 
       {/* Media */}
       {renderMedia()}
@@ -317,20 +320,32 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
         )}
       </div>
 
-      {/* Caption - only show if not already displayed in media area */}
+      {/* Caption with author info */}
       {post.mediaType !== 'none' && (
         <div className={`card-caption ${isCaptionExpanded ? 'expanded' : ''}`}>
-          <strong>{post.author.name}</strong>
-          <span ref={captionRef as React.RefObject<HTMLSpanElement>} className="caption-text">{post.caption}</span>
-          {(isCaptionTruncated || isCaptionExpanded) && (
-            <button
-              className="caption-toggle"
-              onClick={() => setIsCaptionExpanded(!isCaptionExpanded)}
-              aria-label={isCaptionExpanded ? 'Show less' : 'Show more'}
-            >
-              {isCaptionExpanded ? 'less' : '...more'}
-            </button>
-          )}
+          <Avatar
+            name={post.author.name}
+            src={post.author.avatar}
+            size="small"
+            className="caption-avatar"
+          />
+          <div className="caption-content-wrapper">
+            <div className="caption-author-line">
+              <strong className="author-name">{post.author.name}</strong>
+              {post.author.title && <span className="author-title">{post.author.title}</span>}
+              <span className="post-time">{formatTimestamp(post.timestamp)}</span>
+            </div>
+            <span ref={captionRef as React.RefObject<HTMLSpanElement>} className="caption-text">{post.caption}</span>
+            {(isCaptionTruncated || isCaptionExpanded) && (
+              <button
+                className="caption-toggle"
+                onClick={() => setIsCaptionExpanded(!isCaptionExpanded)}
+                aria-label={isCaptionExpanded ? 'Show less' : 'Show more'}
+              >
+                {isCaptionExpanded ? 'less' : '...more'}
+              </button>
+            )}
+          </div>
         </div>
       )}
 

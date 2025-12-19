@@ -15,9 +15,13 @@ export interface Post {
   id: string;
   /** Topic ID for Discourse feeds - used to fetch engagement data */
   topicId?: number;
+  /** Post title from RSS <title> element */
+  title?: string;
   author: {
     name: string;
     avatar?: string;
+    /** User title/role (e.g., "Training Manager") */
+    title?: string;
   };
   caption: string;
   mediaType: MediaType;

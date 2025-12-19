@@ -4,6 +4,43 @@ import { SAMPLE_FEED_URL, SAMPLE_FEED_NO_COMMENTS_URL, getSamplePosts } from '..
 import { getProxiedUrl, shouldUseProxy, getDiscourseBaseUrl, isDemoFeed } from './proxyConfig';
 
 /**
+ * Topic metadata including engagement data and author info
+ */
+interface TopicMetadata {
+  likes: number;
+  commentCount: number;
+  authorAvatar?: string;
+  authorTitle?: string;
+  authorName?: string;
+}
+
+/**
+ * Cache for topic engagement data (likes, comment count).
+ * Key: topicId, Value: { data, timestamp }
+ * Cache expires after 5 minutes.
+ */
+const topicEngagementCache = new Map<number, { 
+  likes: number; 
+  commentCount: number;
+  timestamp: number;
+}>();
+
+/**
+ * Cache for author information to avoid refetching for repeat authors.
+ * Key: username, Value: { avatar, title, name, timestamp }
+ * Cache expires after 5 minutes.
+ */
+interface AuthorInfo {
+  avatar?: string;
+  title?: string;
+  name?: string;
+  timestamp: number;
+}
+const authorCache = new Map<string, AuthorInfo>();
+
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+/**
  * Check if a URL will be proxied in development
  */
 export function isProxiedUrl(url: string): boolean {
@@ -160,6 +197,7 @@ function parseRSS(xmlString: string): Post[] {
     posts.push({
       id: guid,
       topicId,
+      title,
       author: {
         name: creator,
       },
@@ -187,15 +225,32 @@ interface DiscourseTopicResponse {
   like_count: number;
   posts_count: number;
   reply_count: number;
+  details?: {
+    created_by?: {
+      id: number;
+      username: string;
+      name: string;
+      avatar_template: string;
+    };
+  };
+  post_stream?: {
+    posts?: Array<{
+      username: string;
+      avatar_template: string;
+      user_title?: string;
+      name?: string;
+    }>;
+  };
 }
 
 /**
  * Fetch engagement data for a single topic from Discourse API
+ * Uses separate caches for engagement data and author info.
  */
 async function fetchTopicMetadata(
   topicId: number,
   feedUrl: string
-): Promise<{ likes: number; commentCount: number } | null> {
+): Promise<TopicMetadata | null> {
   // Demo feeds already have likes/commentCount in the post data, skip fetching
   if (isDemoFeed(feedUrl)) {
     return null;
@@ -209,11 +264,53 @@ async function fetchTopicMetadata(
     if (!response.ok) return null;
     
     const data: DiscourseTopicResponse = await response.json();
-    return {
+    
+    // Get author info from the first post (the original post)
+    const firstPost = data.post_stream?.posts?.[0];
+    const username = firstPost?.username;
+    const baseUrl = getDiscourseBaseUrl(feedUrl);
+    
+    // Check author cache - reuse cached author info if available
+    let authorInfo: AuthorInfo | undefined;
+    if (username) {
+      const cachedAuthor = authorCache.get(username);
+      if (cachedAuthor && Date.now() - cachedAuthor.timestamp < CACHE_TTL_MS) {
+        // Use cached author info
+        authorInfo = cachedAuthor;
+      } else {
+        // Build avatar URL from template (replace {size} with 96)
+        let authorAvatar: string | undefined;
+        if (firstPost?.avatar_template) {
+          const avatarPath = firstPost.avatar_template.replace('{size}', '96');
+          authorAvatar = avatarPath.startsWith('/') ? `${baseUrl}${avatarPath}` : avatarPath;
+        }
+        
+        authorInfo = {
+          avatar: authorAvatar,
+          title: firstPost?.user_title,
+          name: firstPost?.name || data.details?.created_by?.name,
+          timestamp: Date.now(),
+        };
+        
+        // Cache author info by username for reuse across topics
+        authorCache.set(username, authorInfo);
+      }
+    }
+    
+    // Cache engagement data
+    const engagement = {
       likes: data.like_count,
-      // posts_count includes the original post, so subtract 1 for reply count
-      // or use reply_count directly
       commentCount: data.reply_count,
+      timestamp: Date.now(),
+    };
+    topicEngagementCache.set(topicId, engagement);
+    
+    return {
+      likes: engagement.likes,
+      commentCount: engagement.commentCount,
+      authorAvatar: authorInfo?.avatar,
+      authorTitle: authorInfo?.title,
+      authorName: authorInfo?.name,
     };
   } catch (err) {
     console.warn(`Failed to fetch topic ${topicId} metadata:`, err);
@@ -239,6 +336,13 @@ async function enrichPostsWithMetadata(
         ...post,
         likes: metadata.likes,
         commentCount: metadata.commentCount,
+        author: {
+          ...post.author,
+          // Use full name if available, fallback to RSS creator
+          name: metadata.authorName || post.author.name,
+          avatar: metadata.authorAvatar,
+          title: metadata.authorTitle,
+        },
       };
     }
     return post;
