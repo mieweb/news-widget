@@ -135,7 +135,7 @@ export interface UseCommentsOptions {
  */
 export { getPendingCommentCount };
 
-export function useComments(postId: string, options: UseCommentsOptions = {}) {
+export function useComments(_postId: string, options: UseCommentsOptions = {}) {
   const {
     topicId,
     discourseBaseUrl,

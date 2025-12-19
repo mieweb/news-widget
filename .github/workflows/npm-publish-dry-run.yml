@@ -1,0 +1,72 @@
+name: NPM Publish Dry Run
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'news-widget/package.json'
+      - 'news-widget/src/**'
+      - 'news-widget/vite.config.lib.ts'
+      - 'news-widget/tsconfig.lib.json'
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: |
+          cd news-widget
+          npm ci
+      
+      - name: Run linter
+        run: |
+          cd news-widget
+          npm run lint
+      
+      - name: Run tests
+        run: |
+          cd news-widget
+          npx playwright install --with-deps
+          npm test
+      
+      - name: Build library
+        run: |
+          cd news-widget
+          npm run build:lib
+      
+      - name: Verify build output
+        run: |
+          cd news-widget
+          ls -la dist/
+          test -f dist/news-widget.js || exit 1
+          test -f dist/news-widget.umd.cjs || exit 1
+          test -f dist/news-widget.css || exit 1
+          test -f dist/index.d.ts || exit 1
+      
+      - name: Test pack
+        run: |
+          cd news-widget
+          npm pack --dry-run
+      
+      - name: Check package contents
+        run: |
+          cd news-widget
+          npm pack
+          tar -tzf mieweb-news-widget-*.tgz | head -30
+      
+      - name: Report status
+        run: |
+          cd news-widget
+          VERSION=$(node -p "require('./package.json').version")
+          echo "✅ Package build successful for v$VERSION"
+          echo "📦 Ready to publish once PR is merged and release is created"

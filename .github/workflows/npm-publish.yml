@@ -1,0 +1,78 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (leave empty to use package.json version)'
+        required: false
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Install dependencies
+        run: |
+          cd news-widget
+          npm ci
+      
+      - name: Run linter
+        run: |
+          cd news-widget
+          npm run lint
+      
+      - name: Run tests
+        run: |
+          cd news-widget
+          npx playwright install --with-deps
+          npm test
+      
+      - name: Build library
+        run: |
+          cd news-widget
+          npm run build:lib
+      
+      - name: Verify build output
+        run: |
+          cd news-widget
+          ls -la dist/
+          test -f dist/news-widget.js || exit 1
+          test -f dist/news-widget.umd.cjs || exit 1
+          test -f dist/news-widget.css || exit 1
+          test -f dist/index.d.ts || exit 1
+      
+      - name: Update version (if specified)
+        if: inputs.version != ''
+        run: |
+          cd news-widget
+          npm version ${{ inputs.version }} --no-git-tag-version
+      
+      - name: Publish to NPM
+        run: |
+          cd news-widget
+          npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Report published version
+        run: |
+          cd news-widget
+          VERSION=$(node -p "require('./package.json').version")
+          echo "✅ Published @mieweb/news-widget@$VERSION to NPM"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT

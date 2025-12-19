@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "outDir": "./dist",
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": false
+  },
+  "include": ["src/index.tsx", "src/types", "src/components", "src/hooks", "src/App.tsx", "src/data"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts", "tests", "**/*.stories.tsx", "src/main.tsx"]
+}
