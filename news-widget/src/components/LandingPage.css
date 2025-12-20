@@ -172,7 +172,25 @@
 }
 
 .landing-footer p {
-  margin: 0;
+  margin: 0.25rem 0;
+}
+
+.landing-footer a {
+  color: white;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.landing-footer a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.landing-footer .github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
 }
 
 /* Mobile adjustments */

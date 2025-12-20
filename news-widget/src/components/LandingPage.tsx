@@ -66,7 +66,22 @@ export function LandingPage({ onSelectFeed }: LandingPageProps) {
       </main>
 
       <footer className="landing-footer">
-        <p>Powered by Enterprise Health Community</p>
+        <p>
+          Developed by{' '}
+          <a href="https://www.mieweb.com" target="_blank" rel="noopener noreferrer">
+            Medical Informatics Engineering, Inc.
+          </a>
+        </p>
+        <p>
+          <a
+            href="https://github.com/mieweb/news-widget"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="github-link"
+          >
+            ⭐ View on GitHub
+          </a>
+        </p>
       </footer>
     </div>
   );
