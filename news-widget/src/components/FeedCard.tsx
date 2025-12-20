@@ -6,6 +6,7 @@ import { getPendingCommentCount } from '../hooks';
 import { formatTimestamp, formatTimestampFull } from '../utils';
 import { CommentsPanel } from './CommentsPanel';
 import { Avatar } from './Avatar';
+import { ClickTooltip } from './ClickTooltip';
 import './FeedCard.css';
 
 /** Default capabilities when none are specified */
@@ -181,13 +182,13 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
                 <div className="caption-author-line">
                   <strong className="author-name">{post.author.name}</strong>
                   {post.author.title && <span className="author-title">{post.author.title}</span>}
-                  <span 
-                    className="post-time" 
-                    data-tooltip={formatTimestampFull(post.timestamp)}
-                    aria-label={`Posted ${formatTimestampFull(post.timestamp)}`}
+                  <ClickTooltip
+                    content={formatTimestampFull(post.timestamp)}
+                    className="post-time"
+                    ariaLabel={`Posted ${formatTimestampFull(post.timestamp)}`}
                   >
                     {formatTimestamp(post.timestamp)}
-                  </span>
+                  </ClickTooltip>
                 </div>
                 <p ref={captionRef as React.RefObject<HTMLParagraphElement>}>{post.caption}</p>
                 {(isCaptionTruncated || isCaptionExpanded) && (
@@ -325,13 +326,13 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
             <div className="caption-author-line">
               <strong className="author-name">{post.author.name}</strong>
               {post.author.title && <span className="author-title">{post.author.title}</span>}
-              <span 
-                className="post-time" 
-                data-tooltip={formatTimestampFull(post.timestamp)}
-                aria-label={`Posted ${formatTimestampFull(post.timestamp)}`}
+              <ClickTooltip
+                content={formatTimestampFull(post.timestamp)}
+                className="post-time"
+                ariaLabel={`Posted ${formatTimestampFull(post.timestamp)}`}
               >
                 {formatTimestamp(post.timestamp)}
-              </span>
+              </ClickTooltip>
             </div>
             <span ref={captionRef as React.RefObject<HTMLSpanElement>} className="caption-text">{post.caption}</span>
             {(isCaptionTruncated || isCaptionExpanded) && (

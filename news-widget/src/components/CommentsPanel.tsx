@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useComments, type UseCommentsOptions } from '../hooks/useComments';
 import { formatTimestampCompact, formatTimestampFull } from '../utils';
 import { Avatar } from './Avatar';
+import { ClickTooltip } from './ClickTooltip';
 import './CommentsPanel.css';
 
 interface CommentsPanelProps {
@@ -118,12 +119,12 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
                   <strong>{comment.author.name}</strong> {comment.content}
                 </div>
                 <div className="comment-meta">
-                  <span 
+                  <ClickTooltip
+                    content={formatTimestampFull(comment.timestamp)}
                     className="comment-time"
-                    data-tooltip={formatTimestampFull(comment.timestamp)}
                   >
                     {formatTimestampCompact(comment.timestamp)}
-                  </span>
+                  </ClickTooltip>
                   {comment.status === 'pending' && (
                     <span className="comment-status pending" role="status" aria-live="polite">
                       ⏳ Pending
