@@ -4,6 +4,8 @@ An embeddable Instagram-style news feed widget with video playback, swipe gestur
 
 [Video Demo of News Feed Widget](https://youtube.com/shorts/4_813Qfi_6o?feature=share)
 
+[Live test site](https://news-widget.opensource.mieweb.org)
+
 ## 📖 Documentation
 
 The main documentation is located in the **[news-widget/](news-widget/)** directory.
