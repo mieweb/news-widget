@@ -344,7 +344,6 @@ export function testDiscourseServer(): Plugin {
 
             console.log(`[Test Server] Comment added to topic ${topicId}`);
             sendJson(res, {
-              id: newComment.id,
               topic_id: topicId,
               post_number: comments[topicId].length + 1,
               ...newComment,
@@ -418,7 +417,6 @@ export function testDiscourseServer(): Plugin {
         // Topic HTML view: GET /api/test/t/:slug/:id
         const topicHtmlMatch = url.match(/^\/api\/test\/t\/([^/]+)\/(\d+)$/);
         if (topicHtmlMatch && method === 'GET') {
-          const slug = topicHtmlMatch[1];
           const topicId = parseInt(topicHtmlMatch[2], 10);
           const post = SAMPLE_POSTS.find(p => p.id === topicId);
           
