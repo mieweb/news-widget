@@ -51,6 +51,34 @@
 .post-time {
   font-size: 12px;
   color: #8e8e8e;
+  cursor: help;
+  position: relative;
+}
+
+/* Custom instant tooltip using data-tooltip attribute */
+.post-time::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s ease-in-out;
+  pointer-events: none;
+  z-index: 1000;
+  margin-bottom: 4px;
+}
+
+.post-time:hover::after {
+  opacity: 1;
+  visibility: visible;
 }
 
 .fullscreen-button {
@@ -158,6 +186,34 @@
 .caption-content .post-time {
   font-size: 0.8rem;
   color: #8e8e8e;
+  cursor: help;
+  position: relative;
+}
+
+/* Ensure tooltip appears above caption content */
+.caption-content .post-time::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s ease-in-out;
+  pointer-events: none;
+  z-index: 1000;
+  margin-bottom: 4px;
+}
+
+.caption-content .post-time:hover::after {
+  opacity: 1;
+  visibility: visible;
 }
 
 .caption-content strong {
@@ -325,6 +381,34 @@ a.action-button {
 .caption-author-line .post-time {
   font-size: 12px;
   color: #8e8e8e;
+  cursor: help;
+  position: relative;
+}
+
+/* Tooltip for caption-author-line timestamps */
+.caption-author-line .post-time::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s ease-in-out;
+  pointer-events: none;
+  z-index: 1000;
+  margin-bottom: 4px;
+}
+
+.caption-author-line .post-time:hover::after {
+  opacity: 1;
+  visibility: visible;
 }
 
 .card-caption strong {

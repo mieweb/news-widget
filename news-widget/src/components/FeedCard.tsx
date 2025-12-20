@@ -3,6 +3,7 @@ import ReactPlayer from 'react-player';
 import type { Post, FeedCapabilities } from '../types';
 import { useVisibility } from '../hooks/useVisibility';
 import { getPendingCommentCount } from '../hooks';
+import { formatTimestamp, formatTimestampFull } from '../utils';
 import { CommentsPanel } from './CommentsPanel';
 import { Avatar } from './Avatar';
 import './FeedCard.css';
@@ -126,21 +127,6 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
     lastTapRef.current = now;
   }, [onToggleLike, post.id, cardRef, supportsLikes]);
 
-
-
-  const formatTimestamp = (date: Date): string => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    const minutes = Math.floor(diff / 60000);
-    if (minutes > 0) return `${minutes}m ago`;
-    return 'Just now';
-  };
-
   const renderMedia = () => {
     switch (post.mediaType) {
       case 'youtube':
@@ -195,7 +181,13 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
                 <div className="caption-author-line">
                   <strong className="author-name">{post.author.name}</strong>
                   {post.author.title && <span className="author-title">{post.author.title}</span>}
-                  <span className="post-time">{formatTimestamp(post.timestamp)}</span>
+                  <span 
+                    className="post-time" 
+                    data-tooltip={formatTimestampFull(post.timestamp)}
+                    aria-label={`Posted ${formatTimestampFull(post.timestamp)}`}
+                  >
+                    {formatTimestamp(post.timestamp)}
+                  </span>
                 </div>
                 <p ref={captionRef as React.RefObject<HTMLParagraphElement>}>{post.caption}</p>
                 {(isCaptionTruncated || isCaptionExpanded) && (
@@ -333,7 +325,13 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
             <div className="caption-author-line">
               <strong className="author-name">{post.author.name}</strong>
               {post.author.title && <span className="author-title">{post.author.title}</span>}
-              <span className="post-time">{formatTimestamp(post.timestamp)}</span>
+              <span 
+                className="post-time" 
+                data-tooltip={formatTimestampFull(post.timestamp)}
+                aria-label={`Posted ${formatTimestampFull(post.timestamp)}`}
+              >
+                {formatTimestamp(post.timestamp)}
+              </span>
             </div>
             <span ref={captionRef as React.RefObject<HTMLSpanElement>} className="caption-text">{post.caption}</span>
             {(isCaptionTruncated || isCaptionExpanded) && (

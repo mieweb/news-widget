@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useComments, type UseCommentsOptions } from '../hooks/useComments';
+import { formatTimestampCompact, formatTimestampFull } from '../utils';
 import { Avatar } from './Avatar';
 import './CommentsPanel.css';
 
@@ -80,17 +81,6 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
     }
   };
 
-  const formatTimestamp = (date: Date): string => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const hours = Math.floor(diff / 3600000);
-
-    if (hours > 24) return `${Math.floor(hours / 24)}d`;
-    if (hours > 0) return `${hours}h`;
-    const minutes = Math.floor(diff / 60000);
-    return minutes > 0 ? `${minutes}m` : 'now';
-  };
-
   const handleRetry = async (commentId: string) => {
     await retryComment(commentId);
   };
@@ -128,7 +118,12 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
                   <strong>{comment.author.name}</strong> {comment.content}
                 </div>
                 <div className="comment-meta">
-                  <span className="comment-time">{formatTimestamp(comment.timestamp)}</span>
+                  <span 
+                    className="comment-time"
+                    data-tooltip={formatTimestampFull(comment.timestamp)}
+                  >
+                    {formatTimestampCompact(comment.timestamp)}
+                  </span>
                   {comment.status === 'pending' && (
                     <span className="comment-status pending" role="status" aria-live="polite">
                       ⏳ Pending
