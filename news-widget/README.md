@@ -57,7 +57,11 @@ function App() {
   return (
     <div className="my-app">
       <h1>Latest News</h1>
+      {/* Show landing page with all feeds */}
       <NewsWidget />
+
+      {/* Or render a specific feed directly */}
+      <NewsWidget feedId="features" />
     </div>
   );
 }
@@ -69,9 +73,11 @@ function App() {
 import { renderNewsWidget } from '@mieweb/news-widget';
 import '@mieweb/news-widget/style.css';
 
-// Render into any DOM element
-const container = document.getElementById('news-feed');
-renderNewsWidget(container);
+// Show landing page with all feeds
+renderNewsWidget(document.getElementById('news-feed'));
+
+// Or render a specific registered feed directly (no landing page)
+renderNewsWidget(document.getElementById('news-feed'), { feedId: 'features' });
 ```
 
 #### Advanced Usage: Custom Hooks & Components
@@ -141,6 +147,84 @@ Copy the `dist/` folder to your web server and embed with an iframe:
   ></iframe>
 </body>
 </html>
+```
+
+#### Embedding a Specific Feed via iframe
+
+To show a specific feed without the landing page, use the IIFE build with `feedId`:
+
+```html
+<!-- widget.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="news-widget.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="news-widget.iife.js"></script>
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var feedId = params.get('feedId');
+    NewsWidget.renderNewsWidget(
+      document.getElementById('root'),
+      feedId ? { feedId: feedId } : {}
+    );
+  </script>
+</body>
+</html>
+```
+
+Then embed with a query parameter to select the feed:
+
+```html
+<!-- Enterprise Health feeds (pre-registered) -->
+<iframe src="widget.html?feedId=features" title="Features Feed"></iframe>
+<iframe src="widget.html?feedId=testing" title="Testing Feed"></iframe>
+<iframe src="widget.html?feedId=public" title="Public Feed"></iframe>
+```
+
+#### Embedding a Custom Feed via iframe
+
+Use `registerFeed()` to add a custom feed at runtime before rendering:
+
+```html
+<!-- custom-widget.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="news-widget.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="news-widget.iife.js"></script>
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var feedUrl = params.get('feed');
+    var feedName = params.get('name') || 'News';
+
+    if (feedUrl) {
+      NewsWidget.registerFeed({
+        id: 'custom',
+        name: feedName,
+        url: feedUrl,
+        description: '',
+        emoji: '📰',
+        capabilities: { supportsLikes: true, supportsComments: true }
+      });
+    }
+
+    NewsWidget.renderNewsWidget(
+      document.getElementById('root'),
+      feedUrl ? { feedId: 'custom' } : {}
+    );
+  </script>
+</body>
+</html>
+```
+
+```html
+<iframe src="custom-widget.html?feed=https://example.com/feed.rss&name=My+Feed"></iframe>
 ```
 
 #### Direct Integration (No iframe)
@@ -262,19 +346,51 @@ Match your brand colors:
 
 ### RSS Feed Sources
 
-Configure feeds in [src/data/feedRegistry.ts](src/data/feedRegistry.ts):
+Feeds can be configured statically in [src/data/feedRegistry.ts](src/data/feedRegistry.ts), or registered at runtime.
+
+#### Static Registration (build-time)
+
+Add feeds to the `FEED_SECTIONS` array in `feedRegistry.ts`:
 
 ```typescript
-export const feedConfigs: FeedConfig[] = [
-  {
-    id: 'my-feed',
-    name: 'My News Feed',
-    url: 'https://example.com/feed.rss',
-    supportsComments: true, // Enable Discourse comments
-    categoryId: 11,
-  },
-];
+{
+  id: 'my-feed',
+  name: 'My News Feed',
+  description: 'Latest updates',
+  url: 'https://example.com/feed.rss',
+  emoji: '📰',
+  capabilities: { supportsLikes: true, supportsComments: true },
+}
 ```
+
+#### Runtime Registration
+
+Use `registerFeed()` to add or override feeds before rendering — useful for iframe embedding or dynamic configuration:
+
+```js
+import { registerFeed, renderNewsWidget } from '@mieweb/news-widget';
+
+registerFeed({
+  id: 'custom',
+  name: 'Custom Feed',
+  description: 'Dynamically registered',
+  url: 'https://example.com/feed.rss',
+  emoji: '📰',
+  capabilities: { supportsLikes: true, supportsComments: true },
+});
+
+renderNewsWidget(document.getElementById('root'), { feedId: 'custom' });
+```
+
+#### Available Feed IDs
+
+| Feed ID | Name | Source |
+|---------|------|--------|
+| `features` | Features | Enterprise Health product announcements |
+| `testing` | Test | Enterprise Health testing discussions |
+| `public` | Public | Enterprise Health public community |
+| `test-server` | Test Server | Local development test server |
+| `sample` | Sample Feed | Built-in demo content |
 
 ### Proxy Configuration
 

@@ -90,3 +90,23 @@ export const FEEDS_BY_ID: Record<string, FeedConfig> = FEED_SECTIONS
 export function getFeedById(id: string): FeedConfig | undefined {
   return FEEDS_BY_ID[id];
 }
+
+/**
+ * Register (or override) a feed configuration at runtime.
+ * Call before renderNewsWidget() to add custom feeds for iframe embedding.
+ *
+ * @example
+ * ```js
+ * registerFeed({
+ *   id: 'custom',
+ *   name: 'My Feed',
+ *   url: 'https://example.com/feed.rss',
+ *   description: '',
+ *   emoji: '📰',
+ * });
+ * renderNewsWidget(document.getElementById('root'), { feedId: 'custom' });
+ * ```
+ */
+export function registerFeed(config: FeedConfig): void {
+  FEEDS_BY_ID[config.id] = config;
+}

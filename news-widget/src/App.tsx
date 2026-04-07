@@ -24,7 +24,7 @@ function getFeedBaseUrl(feedUrl: string): string | undefined {
 interface FeedViewProps {
   feed: FeedConfig;
   postId: string | null;
-  onBack: () => void;
+  onBack?: () => void;
   onNavigateToPost: (postId: string) => void;
   onClearPostId: () => void;
 }
@@ -87,9 +87,11 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
   return (
     <div className="app">
       <header className="app-header">
-        <button onClick={onBack} className="back-button" aria-label="Back to channels">
-          ←
-        </button>
+        {onBack && (
+          <button onClick={onBack} className="back-button" aria-label="Back to channels">
+            ←
+          </button>
+        )}
         <h1>📰 {feed.name}</h1>
         <div className="header-actions">
           {isTestServer && isAuthenticated && (
@@ -139,7 +141,12 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
   );
 }
 
-function App() {
+export interface AppProps {
+  /** Feed ID to render directly (skips landing page). Use with registerFeed() for custom feeds. */
+  feedId?: string;
+}
+
+function App({ feedId: propFeedId }: AppProps) {
   const { route, navigateToFeed, navigateToPost, navigateToLanding, clearPostId } = useRouter();
 
   // Handle Discourse topic URLs (e.g., /t/topic-slug/1001 or /api/test/t/topic-slug/1001)
@@ -163,10 +170,31 @@ function App() {
   }, [navigateToLanding]);
 
   const handleNavigateToPost = useCallback((postId: string) => {
-    if (route.feedId) {
-      navigateToPost(route.feedId, postId);
+    const activeFeedId = propFeedId || route.feedId;
+    if (activeFeedId) {
+      navigateToPost(activeFeedId, postId);
     }
-  }, [route.feedId, navigateToPost]);
+  }, [propFeedId, route.feedId, navigateToPost]);
+
+  // When feedId prop is provided, use it directly (single-feed / iframe mode)
+  if (propFeedId) {
+    const propFeed = getFeedById(propFeedId);
+    if (!propFeed) {
+      return (
+        <div className="app-error">
+          <p>Unknown feed: {propFeedId}</p>
+        </div>
+      );
+    }
+    return (
+      <FeedView
+        feed={propFeed}
+        postId={route.postId}
+        onNavigateToPost={handleNavigateToPost}
+        onClearPostId={clearPostId}
+      />
+    );
+  }
 
   // Get feed config from the registry
   const feed = route.feedId ? getFeedById(route.feedId) : null;
