@@ -99,57 +99,68 @@ export const Feed: React.FC<FeedProps> = ({
   }, []);
 
   // Handle arrow key navigation
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement | null;
+    if (target?.matches('input, textarea, select, [contenteditable="true"]')) {
+      return;
+    }
+
+    const getFocusedIndex = () => {
+      const targetCard = target?.closest('[role="article"]') as HTMLElement | null;
+      const targetIndexAttr = targetCard?.getAttribute('data-index');
+      const targetIndex = targetIndexAttr ? parseInt(targetIndexAttr, 10) : NaN;
+      if (!Number.isNaN(targetIndex)) {
+        return targetIndex;
+      }
+
+      const focusedElement = document.activeElement as HTMLElement | null;
+      const focusedCard = focusedElement?.closest('[role="article"]') as HTMLElement | null;
+      const focusedIndexAttr = focusedCard?.getAttribute('data-index');
+      const focusedIndex = focusedIndexAttr ? parseInt(focusedIndexAttr, 10) : NaN;
+      if (!Number.isNaN(focusedIndex)) {
+        return focusedIndex;
+      }
+      return activeIndex;
+    };
+
+    const focusCardAtIndex = (index: number) => {
+      const post = posts[index];
+      if (!post) {
+        return;
+      }
+
+      const element =
+        cardRefs.current.get(post.id) ||
+        (containerRef.current?.querySelector(`[role="article"][data-index="${index}"]`) as HTMLDivElement | null);
+
+      if (element) {
+        element.focus({ preventScroll: true });
+        element.scrollIntoView({ behavior: 'auto', block: 'center' });
+      }
+    };
+
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       e.preventDefault();
-      // Find the currently focused post index
-      let currentIndex = activeIndex;
-      const focusedElement = document.activeElement as HTMLElement;
-      const focusedIndex = parseInt(focusedElement?.getAttribute('data-index') || String(activeIndex), 10);
-      if (focusedIndex >= 0) {
-        currentIndex = focusedIndex;
-      }
+      const currentIndex = getFocusedIndex();
       
       // Stop at the end, don't wrap
       const nextIndex = Math.min(currentIndex + 1, posts.length - 1);
       if (nextIndex !== currentIndex) {
         setActiveIndex(nextIndex);
-        const nextPostId = posts[nextIndex].id;
-        const nextElement = cardRefs.current.get(nextPostId);
-        if (nextElement) {
-          nextElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          nextElement.focus();
-        }
+        focusCardAtIndex(nextIndex);
       }
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
       e.preventDefault();
-      // Find the currently focused post index
-      let currentIndex = activeIndex;
-      const focusedElement = document.activeElement as HTMLElement;
-      const focusedIndex = parseInt(focusedElement?.getAttribute('data-index') || String(activeIndex), 10);
-      if (focusedIndex >= 0) {
-        currentIndex = focusedIndex;
-      }
+      const currentIndex = getFocusedIndex();
       
       // Stop at the start, don't wrap
       const prevIndex = Math.max(currentIndex - 1, 0);
       if (prevIndex !== currentIndex) {
         setActiveIndex(prevIndex);
-        const prevPostId = posts[prevIndex].id;
-        const prevElement = cardRefs.current.get(prevPostId);
-        if (prevElement) {
-          prevElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          prevElement.focus();
-        }
+        focusCardAtIndex(prevIndex);
       }
     }
   }, [activeIndex, posts]);
-
-  // Attach keyboard listener
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
 
   if (posts.length === 0) {
     return (
@@ -160,7 +171,7 @@ export const Feed: React.FC<FeedProps> = ({
   }
 
   return (
-    <div ref={containerRef} className="feed-container">
+    <div ref={containerRef} className="feed-container" onKeyDown={handleKeyDown}>
       <div className="feed-list">
         {posts.map((post, index) => (
           <div

@@ -178,7 +178,7 @@ test.describe('Test Server Feed', () => {
     expect(ariaLabel).toContain('Post 1 of 4');
 
     // Press down arrow to move to second post
-    await page.keyboard.press('ArrowDown');
+    await firstPost.press('ArrowDown');
     await page.waitForTimeout(300);
 
     const secondPost = posts.nth(1);
@@ -187,7 +187,7 @@ test.describe('Test Server Feed', () => {
     expect(secondPost).toBeFocused();
 
     // Press up arrow to go back to first post
-    await page.keyboard.press('ArrowUp');
+    await secondPost.press('ArrowUp');
     await page.waitForTimeout(300);
 
     ariaLabel = await firstPost.getAttribute('aria-label');
@@ -201,7 +201,7 @@ test.describe('Test Server Feed', () => {
     expect(ariaLabel).toContain('Post 4 of 4');
 
     // Press down arrow at end - should not wrap, stay at last post
-    await page.keyboard.press('ArrowDown');
+    await lastPost.press('ArrowDown');
     await page.waitForTimeout(300);
 
     ariaLabel = await lastPost.getAttribute('aria-label');
@@ -214,7 +214,7 @@ test.describe('Test Server Feed', () => {
     expect(ariaLabel).toContain('Post 1 of 4');
 
     // Press up arrow at start - should not wrap, stay at first post
-    await page.keyboard.press('ArrowUp');
+    await firstPost.press('ArrowUp');
     await page.waitForTimeout(300);
 
     ariaLabel = await firstPost.getAttribute('aria-label');
