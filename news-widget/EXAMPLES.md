@@ -62,6 +62,61 @@ export default function Home() {
 </html>
 ```
 
+## Embedding a Specific Feed (IIFE / iframe)
+
+Use `feedId` to skip the landing page and render a specific feed directly:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="news-widget.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="news-widget.iife.js"></script>
+  <script>
+    // Read feedId from URL params (e.g., ?feedId=features)
+    var params = new URLSearchParams(window.location.search);
+    var feedId = params.get('feedId');
+    NewsWidget.renderNewsWidget(
+      document.getElementById('root'),
+      feedId ? { feedId: feedId } : {}
+    );
+  </script>
+</body>
+</html>
+```
+
+Embed as an iframe:
+
+```html
+<iframe src="widget.html?feedId=features" style="width:100%;height:600px;border:none;"></iframe>
+```
+
+## Registering a Custom Feed at Runtime
+
+Use `registerFeed()` to add a feed dynamically before rendering:
+
+```html
+<script src="news-widget.iife.js"></script>
+<script>
+  NewsWidget.registerFeed({
+    id: 'my-custom-feed',
+    name: 'My Custom Feed',
+    description: 'A custom RSS source',
+    url: 'https://example.com/feed.rss',
+    emoji: '📰',
+    capabilities: { supportsLikes: true, supportsComments: true }
+  });
+
+  NewsWidget.renderNewsWidget(
+    document.getElementById('root'),
+    { feedId: 'my-custom-feed' }
+  );
+</script>
+```
+
 ## Custom Styled Example
 
 ```tsx

@@ -21,15 +21,20 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import type { AppProps } from './App';
 
 // Export the main App component as NewsWidget
 export { default as NewsWidget } from './App';
+export type { AppProps } from './App';
 
 // Export individual components for advanced usage
 export { Feed, FeedCard, FullscreenViewer, CommentsPanel } from './components';
 
 // Export hooks for custom implementations
 export { useFeed, useComments, useVisibility, useRouter, useDiscourseAuth } from './hooks';
+
+// Export feed registry utilities
+export { registerFeed } from './data/feedRegistry';
 
 // Export types
 export type { Post, Comment, MediaType, FeedCapabilities, FeedState, DiscourseUser, CommentStatus } from './types';
@@ -49,7 +54,7 @@ export type { FeedConfig } from './data/feedRegistry';
  * renderNewsWidget(document.getElementById('news-feed'));
  * ```
  */
-export function renderNewsWidget(element: HTMLElement, props = {}) {
+export function renderNewsWidget(element: HTMLElement, props: AppProps = {}) {
   if (!element) {
     throw new Error('renderNewsWidget: element is required');
   }
