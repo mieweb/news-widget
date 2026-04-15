@@ -265,49 +265,61 @@ Use a CDN for quick prototyping without installation:
 
 ## 🎨 Customizing Colors & Styles
 
-The widget uses **CSS custom properties** for theming, making it easy to match your site's design.
+The widget uses the **@mieweb/ui** design system with **Tailwind CSS 4** and CSS custom properties for theming. The default brand is **BlueHive**.
+
+### Theme Architecture
+
+Theming is handled via `@mieweb/ui` brand CSS files imported in `src/index.css`:
+
+```css
+@import '@mieweb/ui/brands/bluehive.css' layer(theme);
+@import 'tailwindcss';
+```
+
+All component colors use `var(--mieweb-*)` CSS custom properties, which are mapped from the brand's Tailwind color tokens in the `@theme` block.
 
 ### Override Default Colors
 
-Add this CSS to your parent page (before or after the iframe):
+Override the CSS custom properties on your parent page:
 
 ```html
 <style>
-  /* Define your site's color scheme */
   :root {
-    /* Background colors */
-    --news-widget-bg: #ffffff;
-    --news-widget-card-bg: #f9f9f9;
+    /* Primary brand colors */
+    --mieweb-primary-500: #0066cc;
+    --mieweb-primary-600: #0055aa;
     
-    /* Text colors */
-    --news-widget-text: #333333;
-    --news-widget-text-secondary: #666666;
-    
-    /* Accent colors */
-    --news-widget-primary: #0066cc;
-    --news-widget-border: #e0e0e0;
-    
-    /* Interactive elements */
-    --news-widget-button-hover: #f0f0f0;
-    --news-widget-link-color: #0066cc;
+    /* Semantic tokens */
+    --mieweb-background: #ffffff;
+    --mieweb-foreground: #333333;
+    --mieweb-card: #f9f9f9;
+    --mieweb-border: #e0e0e0;
+    --mieweb-muted-foreground: #666666;
   }
 </style>
 ```
 
 ### Dark Mode Support
 
-The widget respects the system color scheme. Add dark mode overrides:
+Dark mode is activated via `data-theme="dark"` attribute on a parent element:
+
+```html
+<div data-theme="dark">
+  <!-- Widget renders in dark mode -->
+</div>
+```
+
+Or override CSS variables for dark mode:
 
 ```html
 <style>
   @media (prefers-color-scheme: dark) {
     :root {
-      --news-widget-bg: #1a1a1a;
-      --news-widget-card-bg: #2a2a2a;
-      --news-widget-text: #e0e0e0;
-      --news-widget-text-secondary: #a0a0a0;
-      --news-widget-border: #404040;
-      --news-widget-button-hover: #333333;
+      --mieweb-background: #0a0a0a;
+      --mieweb-foreground: #fafafa;
+      --mieweb-card: #1a1a1a;
+      --mieweb-border: #2a2a2a;
+      --mieweb-muted-foreground: #a0a0a0;
     }
   }
 </style>
@@ -317,15 +329,17 @@ The widget respects the system color scheme. Add dark mode overrides:
 
 | Property | Default (Light) | Purpose |
 |----------|-----------------|---------|
-| `--news-widget-bg` | `#fafafa` | Main background color |
-| `--news-widget-card-bg` | `#ffffff` | Card/container background |
-| `--news-widget-text` | `#262626` | Primary text color |
-| `--news-widget-text-secondary` | `#8e8e8e` | Secondary/muted text |
-| `--news-widget-primary` | `#0095f6` | Primary accent (links, buttons) |
-| `--news-widget-border` | `#dbdbdb` | Border and divider color |
-| `--news-widget-button-hover` | `rgba(0,0,0,0.05)` | Button hover state |
-| `--news-widget-error` | `#ed4956` | Error messages |
-| `--news-widget-success` | `#00c853` | Success indicators |
+| `--mieweb-background` | `#fafafa` | Main background color |
+| `--mieweb-foreground` | `#0a0a0a` | Primary text color |
+| `--mieweb-card` | `#ffffff` | Card/container background |
+| `--mieweb-border` | `#e5e7eb` | Border and divider color |
+| `--mieweb-muted-foreground` | `#737373` | Secondary/muted text |
+| `--mieweb-primary-500` | `#3b82f6` | Primary accent (links, buttons) |
+| `--mieweb-destructive-500` | `#ef4444` | Error/destructive actions |
+| `--mieweb-success-500` | `#22c55e` | Success indicators |
+| `--mieweb-ring` | `#3b82f6` | Focus ring color |
+
+See `src/index.css` for the full list of color scale variables (`--mieweb-primary-50` through `--mieweb-primary-950`, etc.).
 
 ### Example: Brand Integration
 
@@ -334,10 +348,9 @@ Match your brand colors:
 ```html
 <style>
   :root {
-    /* Your brand palette */
-    --news-widget-bg: var(--your-site-bg, #f5f5f5);
-    --news-widget-primary: var(--your-brand-primary, #ff6b35);
-    --news-widget-text: var(--your-site-text, #2d3748);
+    --mieweb-background: var(--your-site-bg, #f5f5f5);
+    --mieweb-primary-500: var(--your-brand-primary, #ff6b35);
+    --mieweb-foreground: var(--your-site-text, #2d3748);
   }
 </style>
 ```
@@ -467,12 +480,14 @@ npm run test:headed      # See tests in browser
 ```
 news-widget/
 ├── src/
-│   ├── components/      # React components
+│   ├── components/      # React components (using @mieweb/ui)
 │   │   ├── Feed.tsx           # Main feed container
-│   │   ├── FeedCard.tsx       # Individual post card
-│   │   ├── FullscreenViewer.tsx  # Fullscreen video viewer
-│   │   ├── CommentsPanel.tsx  # Comment sidebar
-│   │   └── Avatar.tsx         # User avatar
+│   │   ├── FeedCard.tsx       # Individual post card (Card, CardHeader, CardActions)
+│   │   ├── FullscreenViewer.tsx  # Fullscreen video viewer (dialog)
+│   │   ├── CommentsPanel.tsx  # Comment sidebar (Input, Button)
+│   │   ├── Avatar.tsx         # User avatar (wraps @mieweb/ui Avatar)
+│   │   ├── ClickTooltip.tsx   # Tooltip trigger (wraps @mieweb/ui Tooltip)
+│   │   └── LandingPage.tsx    # Feed selection landing page (Card, Tooltip)
 │   ├── hooks/           # Custom React hooks
 │   │   ├── useFeed.ts         # RSS feed fetching/parsing
 │   │   ├── useComments.ts     # Comment state management
@@ -515,6 +530,9 @@ See project [copilot-instructions.md](.github/copilot-instructions.md) for code 
 - **React 19** - Latest React with concurrent features
 - **TypeScript 5.9** - Type-safe development
 - **Vite 7** - Fast build tool and dev server
+- **[@mieweb/ui](https://ui.mieweb.org)** - MIE design system components (Button, Card, Avatar, Tooltip, Input, Alert, etc.)
+- **Tailwind CSS 4** - Utility-first CSS framework (via `@tailwindcss/vite` plugin)
+- **lucide-react** - SVG icon library (consistent with @mieweb/ui)
 - **react-player v3** - Multi-format video playback
 - **react-swipeable** - Touch gesture handling
 - **Playwright** - E2E testing
