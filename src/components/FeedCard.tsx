@@ -104,7 +104,10 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
         document.body.removeChild(clone);
         
         const clampedHeight = element.clientHeight;
-        setIsCaptionTruncated(fullHeight > clampedHeight + 2);
+        // Use a line-height-based threshold to avoid false positives from
+        // minor box model differences between clamped and unclamped rendering
+        const lineHeight = parseFloat(getComputedStyle(element).lineHeight) || 20;
+        setIsCaptionTruncated(fullHeight > clampedHeight + lineHeight * 0.5);
       }
     };
     // Run after a short delay to ensure CSS is applied
