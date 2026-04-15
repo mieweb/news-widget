@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'news-widget/package.json'
-      - 'news-widget/src/**'
-      - 'news-widget/vite.config.lib.ts'
-      - 'news-widget/tsconfig.lib.json'
+      - 'package.json'
+      - 'src/**'
+      - 'vite.config.lib.ts'
+      - 'tsconfig.lib.json'
 
 jobs:
   dry-run:
@@ -24,29 +24,21 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        run: |
-          cd news-widget
-          npm ci
+        run: npm ci
       
       - name: Run linter
-        run: |
-          cd news-widget
-          npm run lint
+        run: npm run lint
       
       - name: Run tests
         run: |
-          cd news-widget
           npx playwright install --with-deps
           npm test
       
       - name: Build library
-        run: |
-          cd news-widget
-          npm run build:lib
+        run: npm run build:lib
       
       - name: Verify build output
         run: |
-          cd news-widget
           ls -la dist/
           test -f dist/news-widget.js || exit 1
           test -f dist/news-widget.umd.cjs || exit 1
@@ -54,19 +46,15 @@ jobs:
           test -f dist/index.d.ts || exit 1
       
       - name: Test pack
-        run: |
-          cd news-widget
-          npm pack --dry-run
+        run: npm pack --dry-run
       
       - name: Check package contents
         run: |
-          cd news-widget
           npm pack
           tar -tzf mieweb-news-widget-*.tgz | head -30
       
       - name: Report status
         run: |
-          cd news-widget
           VERSION=$(node -p "require('./package.json').version")
           echo "✅ Package build successful for v$VERSION"
           echo "📦 Ready to publish once PR is merged and release is created"

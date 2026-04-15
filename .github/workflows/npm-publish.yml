@@ -28,29 +28,21 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       
       - name: Install dependencies
-        run: |
-          cd news-widget
-          npm ci
+        run: npm ci
       
       - name: Run linter
-        run: |
-          cd news-widget
-          npm run lint
+        run: npm run lint
       
       - name: Run tests
         run: |
-          cd news-widget
           npx playwright install --with-deps
           npm test
       
       - name: Build library
-        run: |
-          cd news-widget
-          npm run build:lib
+        run: npm run build:lib
       
       - name: Verify build output
         run: |
-          cd news-widget
           ls -la dist/
           test -f dist/news-widget.js || exit 1
           test -f dist/news-widget.umd.cjs || exit 1
@@ -59,20 +51,15 @@ jobs:
       
       - name: Update version (if specified)
         if: inputs.version != ''
-        run: |
-          cd news-widget
-          npm version ${{ inputs.version }} --no-git-tag-version
+        run: npm version ${{ inputs.version }} --no-git-tag-version
       
       - name: Publish to NPM
-        run: |
-          cd news-widget
-          npm publish --access public --provenance
+        run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
       - name: Report published version
         run: |
-          cd news-widget
           VERSION=$(node -p "require('./package.json').version")
           echo "✅ Published @mieweb/news-widget@$VERSION to NPM"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
