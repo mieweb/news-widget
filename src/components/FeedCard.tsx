@@ -1,7 +1,7 @@
 import React, { useRef, useCallback, useEffect, useState, forwardRef } from 'react';
 import ReactPlayer from 'react-player';
 import { Button, Card, CardHeader, CardActions } from '@mieweb/ui';
-import { VolumeX, Volume2, Play, Maximize, Heart, MessageCircle, Search, ExternalLink } from 'lucide-react';
+import { VolumeX, Volume2, Play, Maximize, Heart, MessageCircle, Search, ExternalLink, ImageOff } from 'lucide-react';
 import type { Post, FeedCapabilities } from '../types';
 import { useVisibility } from '../hooks/useVisibility';
 import { getPendingCommentCount } from '../hooks';
@@ -64,6 +64,8 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isCaptionExpanded, setIsCaptionExpanded] = useState(false);
   const [isCaptionTruncated, setIsCaptionTruncated] = useState(false);
+  const [showHeartAnimation, setShowHeartAnimation] = useState(false);
+  const [imageError, setImageError] = useState(false);
   // Initialize with the count of pending comments for this topic
   const [localCommentCount, setLocalCommentCount] = useState(() =>
     post.topicId ? getPendingCommentCount(post.topicId) : 0
@@ -123,15 +125,11 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
     const now = Date.now();
     if (now - lastTapRef.current < 300 && supportsLikes) {
       onToggleLike(post.id);
-      // Show heart animation
-      const heart = document.createElement('div');
-      heart.className = 'double-tap-heart';
-      heart.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="red" stroke="red" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>';
-      cardRef.current?.appendChild(heart);
-      setTimeout(() => heart.remove(), 1000);
+      setShowHeartAnimation(true);
+      setTimeout(() => setShowHeartAnimation(false), 1000);
     }
     lastTapRef.current = now;
-  }, [onToggleLike, post.id, cardRef, supportsLikes]);
+  }, [onToggleLike, post.id, supportsLikes]);
 
   const renderMedia = () => {
     switch (post.mediaType) {
@@ -223,20 +221,21 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
       default:
         return (
           <div className="media-container" onClick={handleDoubleTap}>
-            <img
-              src={post.mediaUrl}
-              alt={post.caption}
-              loading="lazy"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                target.parentElement?.classList.add('media-placeholder');
-                const placeholder = document.createElement('div');
-                placeholder.className = 'placeholder-content';
-                placeholder.innerHTML = '<span class="placeholder-icon"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><path d="M18 12 6 21"/><path d="m2 8 20 13"/><path d="M21 15V5a2 2 0 0 0-2-2H5"/></svg></span><span class="placeholder-text">Image not found</span>';
-                target.parentElement?.appendChild(placeholder);
-              }}
-            />
+            {!imageError ? (
+              <img
+                src={post.mediaUrl}
+                alt={post.caption}
+                loading="lazy"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="media-placeholder">
+                <div className="placeholder-content">
+                  <span className="placeholder-icon"><ImageOff size={48} /></span>
+                  <span className="placeholder-text">Image not found</span>
+                </div>
+              </div>
+            )}
           </div>
         );
     }
@@ -283,6 +282,13 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
 
       {/* Media */}
       {renderMedia()}
+
+      {/* Double-tap heart animation */}
+      {showHeartAnimation && (
+        <div className="double-tap-heart" aria-hidden="true">
+          <Heart size={80} fill="red" stroke="red" />
+        </div>
+      )}
 
       {/* Actions */}
       <CardActions className="card-actions" role="toolbar" aria-label="Post actions">
