@@ -286,8 +286,9 @@ a.action-button:hover {
 }
 
 .card-caption.expanded .caption-text {
-  display: inline;
+  display: block;
   -webkit-line-clamp: unset;
+  overflow: visible;
   overflow: visible;
 }
 

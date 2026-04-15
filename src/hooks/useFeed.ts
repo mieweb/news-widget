@@ -191,7 +191,8 @@ function parseRSS(xmlString: string): Post[] {
       media = extractMediaFromContent(content);
     }
     
-    const caption = stripHtml(description).slice(0, 200);
+    // Use content:encoded (full post) for caption, fall back to description (excerpt)
+    const caption = stripHtml(content || description);
     const topicId = extractTopicId(guid, link);
 
     posts.push({
