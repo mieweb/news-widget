@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Button, Input, CloseIcon } from '@mieweb/ui';
 import { useComments, type UseCommentsOptions } from '../hooks/useComments';
 import { formatTimestampCompact, formatTimestampFull } from '../utils';
 import { Avatar } from './Avatar';
@@ -90,9 +91,9 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
     <div className="comments-panel" role="region" aria-label="Comments section">
       <div className="comments-header">
         <h2>Comments</h2>
-        <button className="close-button" onClick={onClose} aria-label="Close comments">
-          ✕
-        </button>
+        <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close comments">
+          <CloseIcon />
+        </Button>
       </div>
 
       <div className="comments-list" ref={commentsListRef} role="list" aria-label="Comments list">
@@ -122,6 +123,7 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
                   <ClickTooltip
                     content={formatTimestampFull(comment.timestamp)}
                     className="comment-time"
+                    ariaLabel={`Posted ${formatTimestampCompact(comment.timestamp)}, click for full timestamp`}
                   >
                     {formatTimestampCompact(comment.timestamp)}
                   </ClickTooltip>
@@ -129,24 +131,24 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
                     <span className="comment-status pending" role="status" aria-live="polite">
                       ⏳ Pending
                       {isAuthenticated && (
-                        <button
-                          type="button"
-                          className="retry-button"
+                        <Button
+                          variant="link"
+                          size="sm"
                           onClick={() => handleRetry(comment.id)}
                           aria-label="Retry sending comment"
                         >
                           Retry
-                        </button>
+                        </Button>
                       )}
                       {!isAuthenticated && onLogin && (
-                        <button
-                          type="button"
-                          className="login-to-sync-button"
+                        <Button
+                          variant="link"
+                          size="sm"
                           onClick={onLogin}
                           aria-label="Login to sync comment"
                         >
                           Login to sync
-                        </button>
+                        </Button>
                       )}
                     </span>
                   )}
@@ -158,7 +160,7 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
       </div>
 
       <form className="comment-form" onSubmit={handleSubmit} aria-label="Add new comment">
-        <input
+        <Input
           type="text"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
@@ -168,25 +170,25 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
           aria-label="Comment input field"
           aria-describedby={!isAuthenticated ? "pending-note" : undefined}
         />
-        <button
+        <Button
           type="submit"
-          className="comment-submit"
+          variant="link"
           disabled={!newComment.trim() || isSubmitting}
           aria-label="Post comment"
         >
           Post
-        </button>
+        </Button>
       </form>
       
       {!isAuthenticated && onLogin && (
         <div className="login-prompt" role="region" aria-label="Login required" id="pending-note">
-          <button type="button" className="login-button" onClick={onLogin} aria-label="Login to Discourse">
+          <Button variant="primary" size="sm" onClick={onLogin} aria-label="Login to Discourse">
             Login to Discourse
-          </button>
+          </Button>
           {onCheckLogin && (
-            <button type="button" className="check-login-button" onClick={onCheckLogin} aria-label="Check if logged in">
+            <Button variant="outline" size="sm" onClick={onCheckLogin} aria-label="Check if logged in">
               Check login
-            </button>
+            </Button>
           )}
           <span className="login-hint">to sync your comments</span>
         </div>

@@ -1,8 +1,6 @@
+/* Card wrapper — @mieweb/ui Card handles bg/shadow/radius */
 .feed-card {
   width: 100%;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 16px;
   overflow: hidden;
   position: relative;
@@ -10,7 +8,9 @@
 
 .card-header {
   display: flex;
+  flex-direction: row !important;
   align-items: center;
+  justify-content: space-between;
   padding: 12px;
   gap: 10px;
 }
@@ -19,7 +19,7 @@
   flex: 1;
   font-weight: 600;
   font-size: 16px;
-  color: #262626;
+  color: var(--mieweb-foreground, #262626);
   margin: 0;
   line-height: 1.3;
   display: -webkit-box;
@@ -29,48 +29,22 @@
   text-overflow: ellipsis;
 }
 
-.author-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.author-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
 .author-name {
   font-weight: 600;
   font-size: 14px;
-  color: #262626;
+  color: var(--mieweb-foreground, #262626);
 }
 
 .post-time {
   font-size: 12px;
-  color: #8e8e8e;
+  color: var(--mieweb-muted-foreground, #8e8e8e);
 }
 
-.fullscreen-button {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 4px 8px;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.fullscreen-button:hover {
-  opacity: 1;
-}
-
+/* Media containers */
 .media-container {
   position: relative;
   width: 100%;
-  min-height: 50;
+  min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,7 +63,7 @@
 }
 
 .media-placeholder {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--mieweb-primary-400, #667eea) 0%, var(--mieweb-secondary-500, #764ba2) 100%);
 }
 
 .placeholder-content {
@@ -111,14 +85,14 @@
 }
 
 .media-caption {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--mieweb-muted, #f5f7fa) 0%, var(--mieweb-neutral-200, #c3cfe2) 100%);
   padding: 1.5rem;
   align-items: flex-start;
   justify-content: flex-start;
 }
 
 .caption-content {
-  color: #262626;
+  color: var(--mieweb-foreground, #262626);
   text-align: left;
   width: 100%;
   height: auto;
@@ -145,33 +119,21 @@
   flex-wrap: wrap;
 }
 
-.caption-content .author-name {
-  font-size: 1rem;
-  color: #262626;
-}
-
 .caption-content .author-title {
   font-size: 0.8rem;
-  color: #8e8e8e;
-}
-
-.caption-content .post-time {
-  font-size: 0.8rem;
-  color: #8e8e8e;
+  color: var(--mieweb-muted-foreground, #8e8e8e);
 }
 
 .caption-content strong {
   display: block;
   font-size: 1rem;
   margin-bottom: 0.5rem;
-  color: #262626;
 }
 
 .caption-content p {
   font-size: 0.95rem;
   line-height: 1.5;
   margin: 0;
-  color: #333;
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
@@ -189,25 +151,19 @@
   margin-top: 0.5rem;
 }
 
+/* Video overlay buttons */
 .mute-button {
   position: absolute;
   bottom: 12px;
   right: 12px;
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
-  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6) !important;
+  border-radius: 50% !important;
   width: 36px;
   height: 36px;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
 }
 
 .mute-button:hover {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.8) !important;
 }
 
 .play-overlay {
@@ -215,50 +171,35 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.5);
-  border: none;
-  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-radius: 50% !important;
   width: 64px;
   height: 64px;
   font-size: 28px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s, transform 0.2s;
 }
 
 .play-overlay:hover {
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.7) !important;
   transform: translate(-50%, -50%) scale(1.1);
 }
 
+/* Actions toolbar */
 .card-actions {
-  display: flex;
-  padding: 8px 12px;
-  gap: 16px;
-  border-top: 1px solid #efefef;
-}
-
-.action-button {
-  background: none;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #262626;
-  padding: 8px 4px;
-  transition: transform 0.1s;
+  border-top: 1px solid var(--mieweb-border, #efefef);
 }
 
 /* Remove underline for action links */
 a.action-button {
   text-decoration: none;
+  font-size: 14px;
+  color: var(--mieweb-foreground, #262626);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
 }
 
-.action-button:hover {
+a.action-button:hover {
   transform: scale(1.05);
 }
 
@@ -268,11 +209,11 @@ a.action-button {
 
 .action-button.open-link {
   text-decoration: none;
-  color: #0095f6;
+  color: var(--mieweb-primary-500, #0095f6);
 }
 
 .action-button.open-link:hover {
-  color: #00376b;
+  color: var(--mieweb-primary-700, #00376b);
 }
 
 @keyframes like-pop {
@@ -281,11 +222,12 @@ a.action-button {
   100% { transform: scale(1); }
 }
 
+/* Caption section */
 .card-caption {
   padding: 12px;
   font-size: 14px;
   line-height: 1.4;
-  color: #262626;
+  color: var(--mieweb-foreground, #262626);
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -314,18 +256,17 @@ a.action-button {
 .caption-author-line .author-name {
   font-weight: 600;
   font-size: 14px;
-  color: #262626;
 }
 
 .caption-author-line .author-title {
   font-size: 12px;
-  color: #8e8e8e;
+  color: var(--mieweb-muted-foreground, #8e8e8e);
   font-weight: 400;
 }
 
 .caption-author-line .post-time {
   font-size: 12px;
-  color: #8e8e8e;
+  color: var(--mieweb-muted-foreground, #8e8e8e);
 }
 
 .card-caption strong {
@@ -351,18 +292,8 @@ a.action-button {
 }
 
 .caption-toggle {
-  background: none;
-  border: none;
-  color: #8e8e8e;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 0;
+  padding: 0 !important;
   margin-left: 4px;
-  font-weight: 500;
-}
-
-.caption-toggle:hover {
-  color: #262626;
 }
 
 /* Double-tap heart animation */

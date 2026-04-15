@@ -1,6 +1,6 @@
 .comments-panel {
-  border-top: 1px solid #efefef;
-  background: #fafafa;
+  border-top: 1px solid var(--mieweb-border, #efefef);
+  background: var(--mieweb-background, #fafafa);
   max-height: 300px;
   display: flex;
   flex-direction: column;
@@ -11,28 +11,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  border-bottom: 1px solid #efefef;
-  background: #fff;
+  border-bottom: 1px solid var(--mieweb-border, #efefef);
+  background: var(--mieweb-card, #fff);
 }
 
-.comments-header h3 {
+.comments-header h2 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px 8px;
-  color: #8e8e8e;
-  transition: color 0.2s;
-}
-
-.close-button:hover {
-  color: #262626;
 }
 
 .comments-list {
@@ -44,7 +30,7 @@
 .comments-loading,
 .comments-empty {
   text-align: center;
-  color: #8e8e8e;
+  color: var(--mieweb-muted-foreground, #8e8e8e);
   padding: 20px;
   font-size: 14px;
 }
@@ -55,14 +41,6 @@
   padding: 8px 0;
 }
 
-.comment-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
 .comment-content {
   flex: 1;
 }
@@ -70,7 +48,7 @@
 .comment-text {
   font-size: 14px;
   line-height: 1.4;
-  color: #262626;
+  color: var(--mieweb-foreground, #262626);
   word-wrap: break-word;
   display: inline;
 }
@@ -87,65 +65,30 @@
 
 .comment-time {
   font-size: 12px;
-  color: #8e8e8e;
+  color: var(--mieweb-muted-foreground, #8e8e8e);
 }
 
 .comment-form {
   display: flex;
   gap: 8px;
   padding: 12px;
-  border-top: 1px solid #efefef;
-  background: #fff;
+  border-top: 1px solid var(--mieweb-border, #efefef);
+  background: var(--mieweb-card, #fff);
+  align-items: center;
 }
 
 .comment-input {
   flex: 1;
-  border: 1px solid #dbdbdb;
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.comment-input:focus {
-  border-color: #0095f6;
-}
-
-.comment-input::placeholder {
-  color: #8e8e8e;
-}
-
-.comment-submit {
-  background: none;
-  border: none;
-  color: #0095f6;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 8px 12px;
-  transition: opacity 0.2s;
-}
-
-.comment-submit:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.comment-submit:hover:not(:disabled) {
-  color: #00376b;
 }
 
 /* Pending comments */
 .comment-pending {
   opacity: 0.7;
-  background: #fffbe6;
+  background: var(--mieweb-warning-50, #fffbe6);
   border-radius: 8px;
   padding: 4px 8px;
   margin: -4px -8px;
 }
-
-/* .comment-meta is defined above - removed duplicate */
 
 .comment-status {
   font-size: 12px;
@@ -155,24 +98,7 @@
 }
 
 .comment-status.pending {
-  color: #b8860b;
-}
-
-.retry-button,
-.login-to-sync-button {
-  background: none;
-  border: none;
-  color: #0095f6;
-  font-size: 11px;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-
-.retry-button:hover,
-.login-to-sync-button:hover {
-  background: rgba(0, 149, 246, 0.1);
+  color: var(--mieweb-warning-600, #b8860b);
 }
 
 /* Login prompt */
@@ -182,44 +108,11 @@
   justify-content: center;
   gap: 8px;
   padding: 10px 12px;
-  background: #f0f8ff;
-  border-top: 1px solid #dbdbdb;
-}
-
-.login-button {
-  background: #0095f6;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.login-button:hover {
-  background: #0077cc;
-}
-
-.check-login-button {
-  background: transparent;
-  color: #0095f6;
-  border: 1px solid #0095f6;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.check-login-button:hover {
-  background: #0095f6;
-  color: white;
+  background: var(--mieweb-primary-50, #f0f8ff);
+  border-top: 1px solid var(--mieweb-border, #dbdbdb);
 }
 
 .login-hint {
   font-size: 12px;
-  color: #8e8e8e;
+  color: var(--mieweb-muted-foreground, #8e8e8e);
 }

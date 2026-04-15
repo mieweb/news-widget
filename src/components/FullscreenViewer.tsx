@@ -1,5 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
+import { Button, CloseIcon } from '@mieweb/ui';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Post, FeedCapabilities } from '../types';
 import { FeedCard } from './FeedCard';
 import './FullscreenViewer.css';
@@ -104,25 +106,27 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
   }
 
   return (
-    <div className="fullscreen-viewer" {...swipeHandlers}>
+    <div className="fullscreen-viewer" role="dialog" aria-modal="true" aria-label="Fullscreen post viewer" {...swipeHandlers}>
       <div className="fullscreen-header">
-        <button className="close-btn" onClick={onClose} aria-label="Close fullscreen">
-          ✕
-        </button>
-        <span className="post-counter">
+        <Button variant="ghost" size="icon" className="close-btn" onClick={onClose} aria-label="Close fullscreen">
+          <CloseIcon />
+        </Button>
+        <span className="post-counter" aria-live="polite" aria-atomic="true">
           {currentIndex + 1} / {posts.length}
         </span>
       </div>
 
       <div className="fullscreen-content">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           className="nav-button nav-prev"
           onClick={goToPrev}
           disabled={currentIndex === 0}
           aria-label="Previous post"
         >
-          ‹
-        </button>
+          <ChevronLeft size={32} />
+        </Button>
 
         <div className="fullscreen-card-wrapper">
           <FeedCard
@@ -139,20 +143,24 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
           />
         </div>
 
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           className="nav-button nav-next"
           onClick={goToNext}
           disabled={currentIndex === posts.length - 1}
           aria-label="Next post"
         >
-          ›
-        </button>
+          <ChevronRight size={32} />
+        </Button>
       </div>
 
       <div className="fullscreen-indicators">
         {posts.map((_, index) => (
-          <button
+          <Button
             key={index}
+            variant="ghost"
+            size="icon"
             className={`indicator ${index === currentIndex ? 'active' : ''}`}
             onClick={() => setCurrentIndex(index)}
             aria-label={`Go to post ${index + 1}`}
