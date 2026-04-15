@@ -42,7 +42,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:lib": "vite build --config vite.config.lib.ts && BUILD_FORMAT=iife vite build --config vite.config.lib.ts && tsc -p tsconfig.lib.json",
+    "build:lib": "vite build --config vite.config.lib.ts && vite build --config vite.config.lib.ts --mode iife && tsc -p tsconfig.lib.json",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "playwright test",
