@@ -55,10 +55,16 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
+    "@mieweb/ui": "^0.2.4",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@tailwindcss/vite": "^4.2.2",
+    "autoprefixer": "^10.5.0",
     "dayjs": "^1.11.19",
+    "lucide-react": "^1.8.0",
     "react-player": "^3.4.0",
     "react-swipeable": "^7.0.2",
-    "react-window": "^2.2.3"
+    "react-window": "^2.2.3",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

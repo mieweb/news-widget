@@ -396,7 +396,8 @@ export function testDiscourseServer(): Plugin {
         // Test reset: POST /api/test/test/reset
         if (url === '/api/test/test/reset' && method === 'POST') {
           comments = JSON.parse(JSON.stringify(INITIAL_COMMENTS));
-          saveComments(comments);
+          // Don't saveComments() here — disk write can trigger Tailwind/HMR reload.
+          // In-memory reset is sufficient since tests use the Vite plugin server.
           isAuthenticated = false;
           currentUser = null;
           console.log('[Test Server] Reset');

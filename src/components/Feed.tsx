@@ -171,7 +171,7 @@ export const Feed: React.FC<FeedProps> = ({
   }
 
   return (
-    <div ref={containerRef} className="feed-container" onKeyDown={handleKeyDown}>
+    <div ref={containerRef} className="feed-container" role="feed" aria-label="News feed" onKeyDown={handleKeyDown}>
       <div className="feed-list">
         {posts.map((post, index) => (
           <div

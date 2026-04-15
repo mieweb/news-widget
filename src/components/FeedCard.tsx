@@ -1,5 +1,7 @@
 import React, { useRef, useCallback, useEffect, useState, forwardRef } from 'react';
 import ReactPlayer from 'react-player';
+import { Button, Card, CardHeader, CardActions } from '@mieweb/ui';
+import { VolumeX, Volume2, Play, Maximize, Heart, MessageCircle, Search, ExternalLink } from 'lucide-react';
 import type { Post, FeedCapabilities } from '../types';
 import { useVisibility } from '../hooks/useVisibility';
 import { getPendingCommentCount } from '../hooks';
@@ -121,7 +123,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
       // Show heart animation
       const heart = document.createElement('div');
       heart.className = 'double-tap-heart';
-      heart.innerHTML = '❤️';
+      heart.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="red" stroke="red" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>';
       cardRef.current?.appendChild(heart);
       setTimeout(() => heart.remove(), 1000);
     }
@@ -143,7 +145,9 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
               height="100%"
               playsInline
             />
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               className="mute-button"
               onClick={(e) => {
                 e.stopPropagation();
@@ -151,10 +155,12 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
               }}
               aria-label={isMuted ? 'Unmute' : 'Mute'}
             >
-              {isMuted ? '🔇' : '🔊'}
-            </button>
+              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </Button>
             {!isPlaying && (
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 className="play-overlay"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -162,8 +168,8 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
                 }}
                 aria-label="Play video"
               >
-                ▶️
-              </button>
+                <Play size={48} />
+              </Button>
             )}
           </div>
         );
@@ -192,7 +198,9 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
                 </div>
                 <p ref={captionRef as React.RefObject<HTMLParagraphElement>}>{post.caption}</p>
                 {(isCaptionTruncated || isCaptionExpanded) && (
-                  <button
+                  <Button
+                    variant="link"
+                    size="sm"
                     className="caption-toggle"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -201,7 +209,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
                     aria-label={isCaptionExpanded ? 'Show less' : 'Show more'}
                   >
                     {isCaptionExpanded ? 'less' : '...more'}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -222,7 +230,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
                 target.parentElement?.classList.add('media-placeholder');
                 const placeholder = document.createElement('div');
                 placeholder.className = 'placeholder-content';
-                placeholder.innerHTML = '<span class="placeholder-icon">🖼️</span><span class="placeholder-text">Image not found</span>';
+                placeholder.innerHTML = '<span class="placeholder-icon"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><path d="M18 12 6 21"/><path d="m2 8 20 13"/><path d="M21 15V5a2 2 0 0 0-2-2H5"/></svg></span><span class="placeholder-text">Image not found</span>';
                 target.parentElement?.appendChild(placeholder);
               }}
             />
@@ -232,7 +240,10 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
   };
 
   return (
-    <div 
+    <Card
+      as="article"
+      variant="elevated"
+      padding="none" 
       ref={(el) => {
         // Support both the internal visibility ref and the forwarded ref
         if (cardRef && typeof cardRef === 'object') {
@@ -248,48 +259,53 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
       }}
       className="feed-card"
       tabIndex={isActive ? 0 : -1}
-      role="article"
       data-index={feedIndex}
       aria-label={`Post ${feedIndex + 1} of ${feedLength} by ${post.author.name}`}
     >
       {/* Header - Post Title */}
-      <header className="card-header">
+      <CardHeader className="card-header">
         <h2 className="post-title">{post.title || post.caption}</h2>
         {onOpenFullscreen && (
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             className="fullscreen-button"
             onClick={() => onOpenFullscreen(post)}
             aria-label="Open fullscreen"
           >
-            ⛶
-          </button>
+            <Maximize size={18} />
+          </Button>
         )}
-      </header>
+      </CardHeader>
 
       {/* Media */}
       {renderMedia()}
 
       {/* Actions */}
-      <div className="card-actions" role="toolbar" aria-label="Post actions">
+      <CardActions className="card-actions" role="toolbar" aria-label="Post actions">
         {supportsLikes && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             className={`action-button ${post.isLiked ? 'liked' : ''}`}
             onClick={() => onToggleLike(post.id)}
             aria-label={`${post.isLiked ? 'Unlike' : 'Like'} post (${post.likes ?? 0} likes)`}
             aria-pressed={post.isLiked}
           >
-            {post.isLiked ? '❤️' : '🤍'} {post.likes ?? '–'}
-          </button>
+            <Heart size={16} fill={post.isLiked ? 'currentColor' : 'none'} /> {post.likes ?? '–'}
+          </Button>
         )}
         {supportsComments && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             className="action-button"
             onClick={() => setShowComments(!showComments)}
             aria-label={`View comments (${displayedCommentCount} comments)`}
             aria-expanded={showComments}
           >
-            💬 {post.commentCount === undefined ? '–' : displayedCommentCount}
-          </button>
+            <MessageCircle size={16} /> {post.commentCount === undefined ? '–' : displayedCommentCount}
+          </Button>
         )}
         {feedId && (
           <a
@@ -297,7 +313,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
             className="action-button"
             aria-label="Zoom to post"
           >
-            🔍 Zoom
+            <Search size={16} /> Zoom
           </a>
         )}
         {post.link && (
@@ -308,10 +324,10 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
             className="action-button open-link"
             aria-label="Open article"
           >
-            🔗 Open
+            <ExternalLink size={16} /> Open
           </a>
         )}
-      </div>
+      </CardActions>
 
       {/* Caption with author info */}
       {post.mediaType !== 'none' && (
@@ -336,13 +352,15 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
             </div>
             <span ref={captionRef as React.RefObject<HTMLSpanElement>} className="caption-text">{post.caption}</span>
             {(isCaptionTruncated || isCaptionExpanded) && (
-              <button
+              <Button
+                variant="link"
+                size="sm"
                 className="caption-toggle"
                 onClick={() => setIsCaptionExpanded(!isCaptionExpanded)}
                 aria-label={isCaptionExpanded ? 'Show less' : 'Show more'}
               >
                 {isCaptionExpanded ? 'less' : '...more'}
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -362,7 +380,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
           onCheckLogin={onCheckLogin}
         />
       )}
-    </div>
+    </Card>
   );
 });
 

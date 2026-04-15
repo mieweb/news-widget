@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--mieweb-primary-400, #667eea) 0%, var(--mieweb-secondary-500, #764ba2) 100%);
 }
 
 .landing-header {
@@ -15,6 +15,9 @@
   font-size: 2.5rem;
   margin: 0 0 0.5rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .landing-subtitle {
@@ -59,47 +62,27 @@
   flex-direction: column;
 }
 
+/* Override @mieweb/ui Card for landing page feed cards */
 .feed-card-link {
-  background: white;
-  border: none;
-  border-radius: 16px;
-  padding: 2rem;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   width: 100%;
   flex: 1;
+}
+
+.feed-card-content {
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
+/* Override @mieweb/ui Button for info icon */
 .feed-info-button {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
   z-index: 1;
-}
-
-.feed-info-button:hover {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.feed-info-button:focus {
-  outline: 2px solid #667eea;
-  outline-offset: 2px;
 }
 
 .feed-info-popup {
@@ -108,7 +91,7 @@
   left: 0;
   right: 0;
   margin-top: 0.5rem;
-  background: #1a1a2e;
+  background: var(--mieweb-neutral-900, #1a1a2e);
   color: #fff;
   padding: 0.75rem;
   border-radius: 8px;
@@ -120,7 +103,7 @@
   font-size: 0.75rem;
   word-break: break-all;
   display: block;
-  color: #a8d8ff;
+  color: var(--mieweb-info-300, #a8d8ff);
 }
 
 .feed-info-proxy-note {
@@ -128,21 +111,7 @@
   padding-top: 0.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 0.7rem;
-  color: #ffd700;
-}
-
-.feed-card-link:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-}
-
-.feed-card-link:focus {
-  outline: 3px solid rgba(255, 255, 255, 0.8);
-  outline-offset: 2px;
-}
-
-.feed-card-link:active {
-  transform: translateY(-2px);
+  color: var(--mieweb-warning-400, #ffd700);
 }
 
 .feed-emoji {
@@ -154,12 +123,12 @@
 .feed-name {
   font-size: 1.5rem;
   margin: 0 0 0.5rem;
-  color: #333;
+  color: var(--mieweb-foreground, #333);
 }
 
 .feed-description {
   font-size: 0.95rem;
-  color: #666;
+  color: var(--mieweb-muted-foreground, #666);
   margin: 0;
   line-height: 1.4;
 }
@@ -202,10 +171,6 @@
   .feed-grid {
     grid-template-columns: 1fr;
     padding: 0 0.5rem;
-  }
-
-  .feed-card-link {
-    padding: 1.5rem;
   }
 
   .feed-emoji {

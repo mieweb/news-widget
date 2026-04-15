@@ -1,4 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
+import { Button, SpinnerWithLabel, Alert, RefreshIcon, ChevronIcon } from '@mieweb/ui';
+import { LogOut, Newspaper } from 'lucide-react';
 import { Feed, FullscreenViewer, LandingPage } from './components';
 import { useFeed, useRouter, useDiscourseAuth, getDiscourseBaseUrl } from './hooks';
 import { getFeedById, type FeedConfig } from './data/feedRegistry';
@@ -67,8 +69,7 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
   if (loading) {
     return (
       <div className="app-loading">
-        <div className="spinner"></div>
-        <p>Loading feed...</p>
+        <SpinnerWithLabel label="Loading feed..." size="lg" />
       </div>
     );
   }
@@ -76,10 +77,10 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
   if (error && posts.length === 0) {
     return (
       <div className="app-error">
-        <p>Failed to load feed: {error}</p>
-        <button onClick={refetch} className="retry-button">
+        <Alert variant="danger">{error}</Alert>
+        <Button variant="primary" onClick={refetch}>
           Try Again
-        </button>
+        </Button>
       </div>
     );
   }
@@ -88,20 +89,20 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
     <div className="app">
       <header className="app-header">
         {onBack && (
-          <button onClick={onBack} className="back-button" aria-label="Back to channels">
-            ←
-          </button>
+          <Button variant="ghost" size="icon" onClick={onBack} aria-label="Back to channels">
+            <ChevronIcon direction="left" />
+          </Button>
         )}
-        <h1>📰 {feed.name}</h1>
+        <h1><Newspaper size={24} aria-hidden="true" /> {feed.name}</h1>
         <div className="header-actions">
           {isTestServer && isAuthenticated && (
-            <button onClick={logout} className="logout-button" aria-label="Logout">
-              🚪
-            </button>
+            <Button variant="ghost" size="icon" onClick={logout} aria-label="Logout">
+              <LogOut size={18} />
+            </Button>
           )}
-          <button onClick={refetch} className="refresh-button" aria-label="Refresh feed">
-            🔄
-          </button>
+          <Button variant="ghost" size="icon" onClick={refetch} aria-label="Refresh feed">
+            <RefreshIcon />
+          </Button>
         </div>
       </header>
 
@@ -182,7 +183,7 @@ function App({ feedId: propFeedId }: AppProps) {
     if (!propFeed) {
       return (
         <div className="app-error">
-          <p>Unknown feed: {propFeedId}</p>
+          <Alert variant="danger">Unknown feed: {propFeedId}</Alert>
         </div>
       );
     }

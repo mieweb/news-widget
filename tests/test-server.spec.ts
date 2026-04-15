@@ -16,7 +16,7 @@ test.describe('Test Server Feed', () => {
     await page.goto('/#/feed/test-server');
     
     // Wait for feed to load
-    await expect(page.getByRole('heading', { name: '📰 Test Server' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Test Server' })).toBeVisible();
   });
 
   test('should load test server feed with posts', async ({ page }) => {
@@ -52,7 +52,7 @@ test.describe('Test Server Feed', () => {
     
     // Reload page to verify like persists on the server side
     await page.reload();
-    await expect(page.getByRole('heading', { name: '📰 Test Server' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Test Server' })).toBeVisible();
     
     // Wait for feed to re-render
     await page.waitForTimeout(500);
@@ -103,6 +103,13 @@ test.describe('Test Server Feed', () => {
     // Verify logged in (logout button should appear in header)
     await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible({ timeout: 10000 });
     
+    // Login may cause re-render that closes comments panel — reopen if needed
+    const commentsHeading = page.getByRole('heading', { name: 'Comments' });
+    if (!await commentsHeading.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await commentsButton.click();
+      await expect(commentsHeading).toBeVisible();
+    }
+
     // Wait for comment to sync (should remove pending status)
     await expect(page.getByText('⏳ Pending')).not.toBeVisible({ timeout: 5000 });
     
@@ -149,29 +156,23 @@ test.describe('Test Server Feed', () => {
 
   test('should show correct comment count', async ({ page }) => {
     // Check that comment counts are displayed using aria-label (508 compliant)
+    // Wait for the first post's comment button to show the expected initial count (2)
     const commentsButton = page.getByRole('button', { name: /View comments/ }).first();
-    await expect(commentsButton).toBeVisible();
+    await expect(commentsButton).toHaveAttribute('aria-label', /2 comments/, { timeout: 10000 });
     
-    // Get initial count from button aria-label
+    // Get count from button aria-label
     const ariaLabel = await commentsButton.getAttribute('aria-label');
     const match = ariaLabel?.match(/(\d+) comments/);
     const initialCount = match ? parseInt(match[1]) : 0;
-    
-    // Should have comments (more than 0)
-    expect(initialCount).toBeGreaterThan(0);
     
     // Open comments and verify count matches
     await commentsButton.click();
     await expect(page.getByRole('heading', { name: 'Comments' })).toBeVisible();
     
-    // Wait for comments to load
-    await page.waitForTimeout(500);
-    
-    // Count comment items using role="listitem" (508 compliant)
+    // Wait for comments to load by checking that at least one listitem is visible
     const commentItems = page.locator('[role="listitem"]');
-    const actualCount = await commentItems.count();
-    
-    expect(actualCount).toBe(initialCount);
+    await expect(commentItems.first()).toBeVisible({ timeout: 5000 });
+    await expect(commentItems).toHaveCount(initialCount);
   });
 
   test('should navigate posts with arrow keys', async ({ page }) => {
