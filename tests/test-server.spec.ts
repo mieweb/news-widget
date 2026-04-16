@@ -172,8 +172,8 @@ test.describe('Test Server Feed', () => {
   });
 
   test('should navigate posts with arrow keys', async ({ page }) => {
-    // Get all posts
-    const posts = page.locator('[role="article"]');
+    // Get all posts using getByRole which matches implicit ARIA roles from semantic <article> elements
+    const posts = page.getByRole('article');
     await expect(posts).toHaveCount(4);
 
     // Focus on first post
