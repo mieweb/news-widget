@@ -214,6 +214,7 @@
 /* Actions toolbar */
 .card-actions {
   border-top: 1px solid var(--mieweb-border, #efefef);
+  padding: 4px 4px;
 }
 
 .liked {
