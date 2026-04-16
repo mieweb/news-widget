@@ -6,7 +6,6 @@ import './Feed.css';
 interface FeedProps {
   posts: Post[];
   onToggleLike: (postId: string) => void;
-  onOpenFullscreen: (post: Post) => void;
   scrollToPostId?: string | null;
   onScrolledToPost?: () => void;
   onNavigateToPost?: (postId: string) => void;
@@ -29,7 +28,6 @@ interface FeedProps {
 export const Feed: React.FC<FeedProps> = ({
   posts,
   onToggleLike,
-  onOpenFullscreen,
   scrollToPostId,
   onScrolledToPost,
   onNavigateToPost,
@@ -185,7 +183,6 @@ export const Feed: React.FC<FeedProps> = ({
               post={post}
               isActive={index === activeIndex}
               onToggleLike={onToggleLike}
-              onOpenFullscreen={onOpenFullscreen}
               capabilities={capabilities}
               feedBaseUrl={feedBaseUrl}
               feedId={feedId}

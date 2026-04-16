@@ -31,17 +31,8 @@
   box-sizing: border-box;
 }
 
-.feed-card:focus {
-  outline: 2px solid var(--mieweb-ring, #0a8ddc);
-  outline-offset: -2px;
-  border-radius: 8px;
-}
-
-.feed-card:focus-visible {
-  outline: 2px solid var(--mieweb-ring, #0a8ddc);
-  outline-offset: -2px;
-  border-radius: 8px;
-}
+/* Focus styles moved to FeedCard.css (::after pseudo-element
+   renders above card content despite overflow: hidden) */
 
 @media (min-width: 600px) {
   .feed-row {

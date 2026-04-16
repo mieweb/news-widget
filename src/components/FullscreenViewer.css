@@ -173,11 +173,6 @@
   gap: 12px;
 }
 
-.fullscreen-card-wrapper .action-button {
-  font-size: 14px;
-  padding: 6px 10px;
-}
-
 /* Compact caption in fullscreen */
 .fullscreen-card-wrapper .card-caption {
   padding: 8px 12px;

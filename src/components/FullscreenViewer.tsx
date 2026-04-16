@@ -135,7 +135,6 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
             onToggleLike={onToggleLike}
             capabilities={capabilities}
             feedBaseUrl={feedBaseUrl}
-                        feedId={feedId}
             isAuthenticated={isAuthenticated}
             postToDiscourse={postToDiscourse}
             onLogin={onLogin}

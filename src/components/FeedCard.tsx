@@ -1,7 +1,7 @@
 import React, { useRef, useCallback, useEffect, useState, forwardRef } from 'react';
 import ReactPlayer from 'react-player';
 import { Button, Card, CardHeader, CardActions, Avatar } from '@mieweb/ui';
-import { VolumeX, Volume2, Play, Maximize, Heart, MessageCircle, Search, ExternalLink, ImageOff } from 'lucide-react';
+import { VolumeX, Volume2, Play, Heart, MessageCircle, Search, ExternalLink, ImageOff } from 'lucide-react';
 import type { Post, FeedCapabilities } from '../types';
 import { useVisibility } from '../hooks/useVisibility';
 import { getPendingCommentCount } from '../hooks';
@@ -20,7 +20,6 @@ interface FeedCardProps {
   post: Post;
   isActive?: boolean;
   onToggleLike: (postId: string) => void;
-  onOpenFullscreen?: (post: Post) => void;
   /** Feed capabilities - controls which engagement features are shown */
   capabilities?: FeedCapabilities;
   /** Base URL for the feed source (e.g., Discourse instance) */
@@ -45,7 +44,6 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
   post,
   isActive = true,
   onToggleLike,
-  onOpenFullscreen,
   capabilities = DEFAULT_CAPABILITIES,
   feedBaseUrl,
   isAuthenticated,
@@ -266,17 +264,6 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
       {/* Header - Post Title */}
       <CardHeader className="card-header">
         <h2 className="post-title">{post.title || post.caption}</h2>
-        {onOpenFullscreen && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="fullscreen-button"
-            onClick={() => onOpenFullscreen(post)}
-            aria-label="Open fullscreen"
-          >
-            <Maximize size={18} />
-          </Button>
-        )}
       </CardHeader>
 
       {/* Media */}
@@ -295,7 +282,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
           <Button
             variant="ghost"
             size="sm"
-            className={`action-button ${post.isLiked ? 'liked' : ''}`}
+            className={post.isLiked ? 'liked' : ''}
             onClick={() => onToggleLike(post.id)}
             aria-label={`${post.isLiked ? 'Unlike' : 'Like'} post (${post.likes ?? 0} likes)`}
             aria-pressed={post.isLiked}
@@ -307,7 +294,6 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
           <Button
             variant="ghost"
             size="sm"
-            className="action-button"
             onClick={() => setShowComments(!showComments)}
             aria-label={`View comments (${displayedCommentCount} comments)`}
             aria-expanded={showComments}
@@ -316,24 +302,26 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
           </Button>
         )}
         {feedId && (
-          <a
-            href={`/#/feed/${feedId}/post/${post.id}`}
-            className="action-button"
+          <Button
+            variant="link"
+            size="sm"
+            leftIcon={<Search size={16} />}
+            onClick={() => { window.location.hash = `/feed/${feedId}/post/${post.id}`; }}
             aria-label="Zoom to post"
           >
-            <Search size={16} /> Zoom
-          </a>
+            Zoom
+          </Button>
         )}
         {post.link && (
-          <a
-            href={post.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="action-button open-link"
+          <Button
+            variant="link"
+            size="sm"
+            leftIcon={<ExternalLink size={16} />}
+            onClick={() => { window.open(post.link, '_blank', 'noopener,noreferrer'); }}
             aria-label="Open article"
           >
-            <ExternalLink size={16} /> Open
-          </a>
+            Open
+          </Button>
         )}
       </CardActions>
 
