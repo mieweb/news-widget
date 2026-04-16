@@ -1,13 +1,12 @@
 import React, { useRef, useCallback, useEffect, useState, forwardRef } from 'react';
 import ReactPlayer from 'react-player';
-import { Button, Card, CardHeader, CardActions } from '@mieweb/ui';
+import { Button, Card, CardHeader, CardActions, Avatar } from '@mieweb/ui';
 import { VolumeX, Volume2, Play, Maximize, Heart, MessageCircle, Search, ExternalLink, ImageOff } from 'lucide-react';
 import type { Post, FeedCapabilities } from '../types';
 import { useVisibility } from '../hooks/useVisibility';
 import { getPendingCommentCount } from '../hooks';
 import { formatTimestamp, formatTimestampFull } from '../utils';
 import { CommentsPanel } from './CommentsPanel';
-import { Avatar } from './Avatar';
 import { ClickTooltip } from './ClickTooltip';
 import './FeedCard.css';
 
@@ -182,7 +181,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
               <Avatar
                 name={post.author.name}
                 src={post.author.avatar}
-                size="small"
+                size="sm"
                 className="caption-avatar"
               />
               <div className="caption-text-wrapper">
@@ -344,7 +343,7 @@ export const FeedCard = forwardRef<HTMLDivElement, FeedCardProps>(({
           <Avatar
             name={post.author.name}
             src={post.author.avatar}
-            size="small"
+            size="sm"
             className="caption-avatar"
           />
           <div className="caption-content-wrapper">
