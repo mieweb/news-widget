@@ -104,7 +104,7 @@ export const Feed: React.FC<FeedProps> = ({
     }
 
     const getFocusedIndex = () => {
-      const targetCard = target?.closest('[role="article"]') as HTMLElement | null;
+      const targetCard = target?.closest('article[data-index]') as HTMLElement | null;
       const targetIndexAttr = targetCard?.getAttribute('data-index');
       const targetIndex = targetIndexAttr ? parseInt(targetIndexAttr, 10) : NaN;
       if (!Number.isNaN(targetIndex)) {
@@ -112,7 +112,7 @@ export const Feed: React.FC<FeedProps> = ({
       }
 
       const focusedElement = document.activeElement as HTMLElement | null;
-      const focusedCard = focusedElement?.closest('[role="article"]') as HTMLElement | null;
+      const focusedCard = focusedElement?.closest('article[data-index]') as HTMLElement | null;
       const focusedIndexAttr = focusedCard?.getAttribute('data-index');
       const focusedIndex = focusedIndexAttr ? parseInt(focusedIndexAttr, 10) : NaN;
       if (!Number.isNaN(focusedIndex)) {
@@ -129,7 +129,7 @@ export const Feed: React.FC<FeedProps> = ({
 
       const element =
         cardRefs.current.get(post.id) ||
-        (containerRef.current?.querySelector(`[role="article"][data-index="${index}"]`) as HTMLDivElement | null);
+        (containerRef.current?.querySelector(`article[data-index="${index}"]`) as HTMLDivElement | null);
 
       if (element) {
         element.focus({ preventScroll: true });
