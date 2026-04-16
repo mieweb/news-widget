@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Input, CloseIcon } from '@mieweb/ui';
+import { Button, Input, CloseIcon, Avatar } from '@mieweb/ui';
 import { useComments, type UseCommentsOptions } from '../hooks/useComments';
 import { formatTimestampCompact, formatTimestampFull } from '../utils';
-import { Avatar } from './Avatar';
 import { ClickTooltip } from './ClickTooltip';
 import './CommentsPanel.css';
 
@@ -112,7 +111,7 @@ export const CommentsPanel: React.FC<CommentsPanelProps> = ({
               <Avatar
                 name={comment.author.name}
                 src={comment.author.avatar}
-                size="small"
+                size="sm"
                 className="comment-avatar"
               />
               <div className="comment-content">
