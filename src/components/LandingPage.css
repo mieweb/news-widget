@@ -1,3 +1,12 @@
+/* Overlay text colors — intentionally fixed for gradient background, not themed */
+.landing-page {
+  --landing-text: #fff;
+  --landing-text-muted: rgba(255, 255, 255, 0.8);
+  --landing-shadow: rgba(0, 0, 0, 0.2);
+  --landing-shadow-heavy: rgba(0, 0, 0, 0.3);
+  --landing-separator: rgba(255, 255, 255, 0.2);
+}
+
 .landing-page {
   min-height: 100vh;
   display: flex;
@@ -8,13 +17,13 @@
 .landing-header {
   text-align: center;
   padding: 3rem 1rem 2rem;
-  color: white;
+  color: var(--landing-text);
 }
 
 .landing-header h1 {
   font-size: 2.5rem;
   margin: 0 0 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px var(--landing-shadow);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -41,11 +50,11 @@
 }
 
 .feed-section-title {
-  color: white;
+  color: var(--landing-text);
   font-size: 1.4rem;
   margin: 0 0 1rem;
   padding-left: 0.5rem;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 3px var(--landing-shadow);
 }
 
 .feed-grid {
@@ -92,10 +101,10 @@
   right: 0;
   margin-top: 0.5rem;
   background: var(--mieweb-neutral-900, #1a1a2e);
-  color: #fff;
+  color: var(--landing-text);
   padding: 0.75rem;
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px var(--landing-shadow-heavy);
   z-index: 10;
 }
 
@@ -109,7 +118,7 @@
 .feed-info-proxy-note {
   margin: 0.5rem 0 0;
   padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid var(--landing-separator);
   font-size: 0.7rem;
   color: var(--mieweb-warning-400, #ffd700);
 }
@@ -136,7 +145,7 @@
 .landing-footer {
   text-align: center;
   padding: 1.5rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--landing-text-muted);
   font-size: 0.9rem;
 }
 
@@ -145,7 +154,7 @@
 }
 
 .landing-footer a {
-  color: white;
+  color: var(--landing-text);
   text-decoration: none;
   transition: opacity 0.2s;
 }
