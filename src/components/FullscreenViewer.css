@@ -1,10 +1,22 @@
+/* Overlay colors — intentionally fixed for dark backdrop, not themed */
+.fullscreen-viewer {
+  --fs-backdrop: rgba(0, 0, 0, 0.95);
+  --fs-text: #fff;
+  --fs-text-muted: rgba(255, 255, 255, 0.8);
+  --fs-btn-bg: rgba(255, 255, 255, 0.1);
+  --fs-btn-bg-hover: rgba(255, 255, 255, 0.2);
+  --fs-dot-bg: rgba(255, 255, 255, 0.3);
+  --fs-dot-bg-hover: rgba(255, 255, 255, 0.5);
+  --fs-dot-active: #fff;
+}
+
 .fullscreen-viewer {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.95);
+  background: var(--fs-backdrop);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -15,23 +27,23 @@
   align-items: center;
   justify-content: space-between;
   padding: 4px 16px;
-  color: #fff;
+  color: var(--fs-text);
 }
 
 /* Override @mieweb/ui Button for dark overlay context */
 .close-btn {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--fs-text) !important;
+  background: var(--fs-btn-bg) !important;
   border-radius: 50% !important;
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: var(--fs-btn-bg-hover) !important;
 }
 
 .post-counter {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--fs-text-muted);
 }
 
 .fullscreen-content {
@@ -58,8 +70,8 @@
 
 /* Override @mieweb/ui Button for dark overlay nav buttons */
 .nav-button {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--fs-text) !important;
+  background: var(--fs-btn-bg) !important;
   border-radius: 50% !important;
   font-size: 36px !important;
   width: 48px !important;
@@ -68,7 +80,7 @@
 }
 
 .nav-button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: var(--fs-btn-bg-hover) !important;
 }
 
 .nav-button:disabled {
@@ -99,17 +111,17 @@
   min-width: 0 !important;
   min-height: 0 !important;
   border-radius: 50% !important;
-  background: rgba(255, 255, 255, 0.3) !important;
+  background: var(--fs-dot-bg) !important;
   padding: 0 !important;
   transition: background 0.2s, transform 0.2s;
 }
 
 .indicator:hover {
-  background: rgba(255, 255, 255, 0.5) !important;
+  background: var(--fs-dot-bg-hover) !important;
 }
 
 .indicator.active {
-  background: #fff !important;
+  background: var(--fs-dot-active) !important;
   transform: scale(1.2);
 }
 
@@ -131,7 +143,7 @@
   max-width: none;
   width: 100%;
   max-height: none;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px var(--fs-backdrop);
   display: flex;
   flex-direction: column;
 }
