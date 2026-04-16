@@ -27,14 +27,17 @@ test.describe('Test Server Feed', () => {
     await expect(page.getByText('This is a welcome post for testing')).toBeVisible();
   });
 
-  test('second post zoom link should deep-link to post', async ({ page }) => {
+  test('second post zoom button should deep-link to post', async ({ page }) => {
     await page.goto('/#/feed/test-server');
-    // Locate the second share link by accessible name
-    const zoomLinks = page.getByRole('link', { name: 'Zoom to post' });
-    await expect(zoomLinks).toHaveCount(4);
-    const secondZoom = zoomLinks.nth(1);
-    const href = await secondZoom.getAttribute('href');
-    expect(href).toMatch('/#/feed/test-server/post/');
+    // Locate the second zoom button by accessible name
+    const zoomButtons = page.getByRole('button', { name: 'Zoom to post' });
+    await expect(zoomButtons).toHaveCount(4);
+    const secondZoom = zoomButtons.nth(1);
+
+    // Click zoom button and verify navigation to post view
+    await secondZoom.click();
+    await page.waitForURL(/\/#\/feed\/test-server\/post\//);
+    expect(page.url()).toMatch('/#/feed/test-server/post/');
   });
 
   test('should handle likes and persist on reload', async ({ page }) => {
@@ -103,13 +106,6 @@ test.describe('Test Server Feed', () => {
     // Verify logged in (logout button should appear in header)
     await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible({ timeout: 10000 });
     
-    // Login may cause re-render that closes comments panel — reopen if needed
-    const commentsHeading = page.getByRole('heading', { name: 'Comments' });
-    if (!await commentsHeading.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await commentsButton.click();
-      await expect(commentsHeading).toBeVisible();
-    }
-
     // Wait for comment to sync (should remove pending status)
     await expect(page.getByText('⏳ Pending')).not.toBeVisible({ timeout: 5000 });
     

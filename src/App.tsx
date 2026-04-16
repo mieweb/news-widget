@@ -45,11 +45,6 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
   // Check if this is the test server (for showing logout button)
   const isTestServer = feedBaseUrl === '/api/test';
 
-  const handleOpenFullscreen = useCallback((post: Post) => {
-    setFullscreenPost(post);
-    onNavigateToPost(post.id);
-  }, [onNavigateToPost]);
-
   const handleCloseFullscreen = useCallback(() => {
     setFullscreenPost(null);
     onClearPostId();
@@ -110,7 +105,6 @@ function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: Fee
         <Feed
           posts={posts}
           onToggleLike={toggleLike}
-          onOpenFullscreen={handleOpenFullscreen}
           scrollToPostId={postId}
           onScrolledToPost={fullscreenPost ? undefined : onClearPostId}
           capabilities={feed.capabilities}

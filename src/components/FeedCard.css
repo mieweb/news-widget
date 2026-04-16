@@ -15,6 +15,24 @@
   position: relative;
 }
 
+/* Focus ring as pseudo-element so it renders above all card content
+   (iframes, positioned overlays, etc.) despite overflow: hidden */
+.feed-card:focus,
+.feed-card:focus-visible {
+  outline: none;
+}
+
+.feed-card:focus::after,
+.feed-card:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--mieweb-ring, #27aae1);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 20;
+}
+
 .card-header {
   display: flex;
   flex-direction: row !important;
@@ -158,6 +176,7 @@
 
 .caption-content .caption-toggle {
   margin-top: 0.5rem;
+  color: var(--mieweb-muted-foreground, #8e8e8e) !important;
 }
 
 /* Video overlay buttons */
@@ -197,31 +216,15 @@
   border-top: 1px solid var(--mieweb-border, #efefef);
 }
 
-/* Remove underline for action links */
-a.action-button {
-  text-decoration: none;
-  font-size: 14px;
-  color: var(--mieweb-foreground, #262626);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 4px;
-}
-
-a.action-button:hover {
-  transform: scale(1.05);
-}
-
-.action-button.liked {
+.liked {
   animation: like-pop 0.3s ease;
 }
 
-.action-button.open-link {
-  text-decoration: none;
+.open-link {
   color: var(--mieweb-primary-500, #0095f6);
 }
 
-.action-button.open-link:hover {
+.open-link:hover {
   color: var(--mieweb-primary-700, #00376b);
 }
 
@@ -304,6 +307,7 @@ a.action-button:hover {
 .caption-toggle {
   padding: 0 !important;
   margin-left: 4px;
+  color: var(--mieweb-muted-foreground, #8e8e8e) !important;
 }
 
 /* Double-tap heart animation */
