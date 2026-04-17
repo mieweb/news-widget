@@ -415,7 +415,7 @@ app.get('/test/status', (req, res) => {
  * POST /test/reset
  */
 app.post('/test/reset', (req, res) => {
-  comments = { ...INITIAL_COMMENTS };
+  comments = JSON.parse(JSON.stringify(INITIAL_COMMENTS));
   saveComments(comments);
   isAuthenticated = false;
   currentUser = null;

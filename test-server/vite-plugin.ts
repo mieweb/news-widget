@@ -395,7 +395,7 @@ export function testDiscourseServer(): Plugin {
 
         // Test reset: POST /api/test/test/reset
         if (url === '/api/test/test/reset' && method === 'POST') {
-          comments = { ...INITIAL_COMMENTS };
+          comments = JSON.parse(JSON.stringify(INITIAL_COMMENTS));
           saveComments(comments);
           isAuthenticated = false;
           currentUser = null;
