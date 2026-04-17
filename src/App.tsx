@@ -27,11 +27,10 @@ interface FeedViewProps {
   feed: FeedConfig;
   postId: string | null;
   onBack?: () => void;
-  onNavigateToPost: (postId: string) => void;
   onClearPostId: () => void;
 }
 
-function FeedView({ feed, postId, onBack, onNavigateToPost, onClearPostId }: FeedViewProps) {
+function FeedView({ feed, postId, onBack, onClearPostId }: FeedViewProps) {
   const { posts, loading, error, refetch, toggleLike } = useFeed(feed.url);
   const [fullscreenPost, setFullscreenPost] = useState<Post | null>(null);
   
@@ -142,7 +141,7 @@ export interface AppProps {
 }
 
 function App({ feedId: propFeedId }: AppProps) {
-  const { route, navigateToFeed, navigateToPost, navigateToLanding, clearPostId } = useRouter();
+  const { route, navigateToFeed, navigateToLanding, clearPostId } = useRouter();
 
   // Handle Discourse topic URLs (e.g., /t/topic-slug/1001 or /api/test/t/topic-slug/1001)
   useEffect(() => {
@@ -164,13 +163,6 @@ function App({ feedId: propFeedId }: AppProps) {
     navigateToLanding();
   }, [navigateToLanding]);
 
-  const handleNavigateToPost = useCallback((postId: string) => {
-    const activeFeedId = propFeedId || route.feedId;
-    if (activeFeedId) {
-      navigateToPost(activeFeedId, postId);
-    }
-  }, [propFeedId, route.feedId, navigateToPost]);
-
   // When feedId prop is provided, use it directly (single-feed / iframe mode)
   if (propFeedId) {
     const propFeed = getFeedById(propFeedId);
@@ -185,7 +177,6 @@ function App({ feedId: propFeedId }: AppProps) {
       <FeedView
         feed={propFeed}
         postId={route.postId}
-        onNavigateToPost={handleNavigateToPost}
         onClearPostId={clearPostId}
       />
     );
@@ -203,7 +194,6 @@ function App({ feedId: propFeedId }: AppProps) {
       feed={feed}
       postId={route.postId}
       onBack={handleBack}
-      onNavigateToPost={handleNavigateToPost}
       onClearPostId={clearPostId}
     />
   );
