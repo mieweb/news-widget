@@ -1,7 +1,17 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Test Server Feed', () => {
+  // Tests share a single test server — run serially to avoid state conflicts
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async ({ page }) => {
+    // Reset test server state (comments, auth) before each test
+    await page.request.post('http://localhost:5173/api/test/test/reset');
+
+    // Clear localStorage before React loads stale pending comments
+    await page.goto('/');
+    await page.evaluate(() => localStorage.clear());
+
     // Navigate to test server feed
     await page.goto('/#/feed/test-server');
     
