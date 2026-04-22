@@ -13,9 +13,11 @@ function cssInjectedByJsPlugin(): Plugin {
     apply: 'build',
     enforce: 'post',
     generateBundle(_options, bundle) {
-      const cssAssets = Object.entries(bundle).filter(
-        ([, asset]) => asset.type === 'asset' && asset.fileName.endsWith('.css'),
-      );
+      const cssAssets = Object.entries(bundle)
+        .filter(
+          ([, asset]) => asset.type === 'asset' && asset.fileName.endsWith('.css'),
+        )
+        .sort(([, a], [, b]) => a.fileName.localeCompare(b.fileName));
 
       if (cssAssets.length === 0) return;
 
@@ -24,15 +26,27 @@ function cssInjectedByJsPlugin(): Plugin {
       );
       if (!jsEntry || jsEntry.type !== 'chunk') return;
 
+      // Concatenate all CSS into a single string for deterministic ordering
+      let concatenatedCss = '';
+      const keysToDelete: string[] = [];
+
       for (const [key, asset] of cssAssets) {
         const css =
           typeof asset.source === 'string'
             ? asset.source
             : new TextDecoder().decode(asset.source);
-        const escaped = css.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-        jsEntry.code =
-          `(function(){try{var s=document.createElement("style");s.textContent=\`${escaped}\`;document.head.appendChild(s)}catch(e){console.error("NewsWidget: failed to inject CSS",e)}})();\n` +
-          jsEntry.code;
+        concatenatedCss += css;
+        keysToDelete.push(key);
+      }
+
+      // Inject concatenated CSS once as a single <style> tag
+      const serializedCss = JSON.stringify(concatenatedCss);
+      jsEntry.code =
+        `(function(){try{var s=document.createElement("style");s.textContent=${serializedCss};document.head.appendChild(s)}catch(e){console.error("NewsWidget: failed to inject CSS",e)}})();\n` +
+        jsEntry.code;
+
+      // Delete CSS assets
+      for (const key of keysToDelete) {
         delete bundle[key];
       }
     },
