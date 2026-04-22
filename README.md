@@ -157,9 +157,6 @@ To show a specific feed without the landing page, use the IIFE build with `feedI
 <!-- widget.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <link rel="stylesheet" href="news-widget.css">
-</head>
 <body>
   <div id="root"></div>
   <script src="news-widget.iife.js"></script>
@@ -192,9 +189,6 @@ Use `registerFeed()` to add a custom feed at runtime before rendering:
 <!-- custom-widget.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <link rel="stylesheet" href="news-widget.css">
-</head>
 <body>
   <div id="root"></div>
   <script src="news-widget.iife.js"></script>
@@ -515,6 +509,12 @@ When embedding via iframe, use appropriate `sandbox` attributes:
 - `allow-popups` - For external links
 - `allow-forms` - For comment submission
 
+### Content Security Policy (CSP)
+
+The **IIFE build** injects CSS at runtime by creating a `<style>` element via JavaScript. This requires the `style-src 'unsafe-inline'` directive (or a matching nonce/hash) in the page's Content Security Policy. If your site uses a strict CSP that disallows inline styles, the IIFE bundle's CSS will be blocked.
+
+For environments with strict CSP, use the **ES or UMD build** with the separate `dist/news-widget.css` stylesheet instead.
+
 ## 📝 License
 
 [Add your license here]
@@ -560,8 +560,11 @@ npm run build:lib
 This generates:
 - `dist/news-widget.js` - ES module
 - `dist/news-widget.umd.cjs` - UMD module (browser globals)
-- `dist/news-widget.css` - Compiled styles
+- `dist/news-widget.iife.js` - Standalone IIFE bundle (all CSS inlined)
+- `dist/news-widget.css` - Compiled styles (for ES/UMD consumers)
 - `dist/index.d.ts` - TypeScript declarations
+
+The IIFE build injects all CSS (Tailwind, component styles, @mieweb/ui) into the page at runtime via a `<style>` tag, so no separate stylesheet is needed — just a single `<script>` tag.
 
 ### Publishing to NPM
 
